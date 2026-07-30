@@ -3,12 +3,11 @@
 #include <time.h>
 #include <mach/mach_time.h>
 
-// uint64_t get_time() {
-//     struct timespec ts; 
-//     clock_gettime(CLOCK_MONOTONIC, &ts);
-//     return (uint64_t)ts.tv_sec * 1000000000ULL + ts.tv_nsec; 
-// }
-
+/**
+ * La funzione converte i tick ottenuti in nanosecondi utilizzando il
+ * rapporto di conversione fornito da mach_timebase_info().
+ * @return Tempo corrente espresso in nanosecondi.
+ */
 uint64_t get_time() {
     static mach_timebase_info_data_t info = {0};
 
@@ -20,6 +19,23 @@ uint64_t get_time() {
     return t * info.numer / info.denom;
 }
 
+/**
+ * La funzione esegue due passate:
+ * - una prima fase di "dry run" per portare gli indirizzi di memoria nella cache,
+ *   riducendo l'effetto del prefetching hardware;
+ * - una seconda fase di "wet run" durante la quale viene misurato il tempo
+ *   necessario per completare gli accessi.
+ *
+ * Gli accessi sono RAW (Read After Write) dipendenti perché il valore letto
+ * determina l'indirizzo del successivo accesso, impedendo l'esecuzione
+ * parallela delle operazioni da parte della CPU.
+ *
+ * @param in Puntatore all'array contenente la catena di accessi.
+ * @param S Dimensione dello stride utilizzato nella costruzione dell'array.
+ * @param ITERS Numero di iterazioni della sequenza di accessi.
+ *
+ * @return Tempo impiegato dalla wet run.
+ */
 uint64_t stride(int* in, size_t S, int ITERS) {
     volatile int* array = in;
 
@@ -37,6 +53,19 @@ uint64_t stride(int* in, size_t S, int ITERS) {
     return end - start;
 }
 
+/**
+ * Misura la latenza degli accessi in memoria.
+ * Crea due diverse configurazioni di accesso a un array:
+ * - una con collegamenti sequenziali (linked array), dove ogni elemento punta
+ *   al successivo con uno stride fisso;
+ * - una con collegamenti casuali, ottenuti tramite una permutazione casuale.
+ * @param argc Numero di argomenti passati da linea di comando.
+ * @param argv Argomenti:
+ *             argv[1] = stride S,
+ *             argv[2] = numero di iterazioni ITERS.
+ *
+ * @return 0 se l'esecuzione termina correttamente, 1 in caso di errore.
+ */
 int main(int argc, char* argv[]) {
 	// ottieni input, ./stride [S] [ITERS]
 	if(argc < 3) {
