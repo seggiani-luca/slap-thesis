@@ -14,7 +14,7 @@
 #define S 32
 
 // numero di test fatti ad ogni passo
-#define TRIES 100
+#define TRIES 1000
 
 /**
  * La funzione converte i tick ottenuti in nanosecondi utilizzando il
