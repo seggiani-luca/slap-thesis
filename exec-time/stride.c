@@ -5,7 +5,7 @@
 
 // valori minimo e massimo di ITERS
 #define MIN_ITERS 10
-#define MAX_ITERS 1000
+#define MAX_ITERS 10000
 
 // passi intermedi di ITERS da minimo a massimo
 #define ITERS_STEPS 10
@@ -49,7 +49,7 @@ uint64_t get_time() {
  *
  * @return Tempo impiegato dalla wet run.
  */
-uint64_t stride(int* in, size_t S, int ITERS) {
+uint64_t stride(int* in, int ITERS) {
     volatile int* array = in;
 
     // dry run
@@ -86,7 +86,7 @@ void measure(int ITERS, int* link_time, int* rand_time) {
 	}
 
 	// misura array collegato 
-	*link_time += stride(array, S, ITERS);
+	*link_time += stride(array, ITERS);
 
 	// inizializza array casuale
 	// permuta array per evitare cicli del tipo 0->1 1->0
@@ -106,9 +106,8 @@ void measure(int ITERS, int* link_time, int* rand_time) {
 	}
 
 	// misura array casuale 
-	*rand_time += stride(array, S, ITERS);
+	*rand_time += stride(array, ITERS);
 
-	return 0;
 }
 
 int main() {
@@ -122,7 +121,7 @@ int main() {
 
 		// esegui TRIES test
 		for(int j = 0; j < TRIES; j++) {
-			measure(ITERS, link_time, rand_time);
+			measure(ITERS, &link_time, &rand_time);
 		}
 
 		// calcola valor medio
