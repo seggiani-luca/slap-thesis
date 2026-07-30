@@ -3,6 +3,19 @@
 #include <time.h>
 #include <mach/mach_time.h>
 
+// valori minimo e massimo di ITERS
+#define MIN_ITERS 10
+#define MAX_ITERS 1000
+
+// passi intermedi di ITERS da minimo a massimo
+#define ITERS_STEPS 10
+
+// valore di S
+#define S 32
+
+// numero di test fatti ad ogni passo
+#define TRIES 100
+
 /**
  * La funzione converte i tick ottenuti in nanosecondi utilizzando il
  * rapporto di conversione fornito da mach_timebase_info().
@@ -59,23 +72,12 @@ uint64_t stride(int* in, size_t S, int ITERS) {
  * - una con collegamenti sequenziali (linked array), dove ogni elemento punta
  *   al successivo con uno stride fisso;
  * - una con collegamenti casuali, ottenuti tramite una permutazione casuale.
- * @param argc Numero di argomenti passati da linea di comando.
- * @param argv Argomenti:
- *             argv[1] = stride S,
- *             argv[2] = numero di iterazioni ITERS.
- *
- * @return 0 se l'esecuzione termina correttamente, 1 in caso di errore.
+ * @param S Valore di stride.
+ * @param ITERS Iterazioni dello stride.
+ * @param link_time puntatore al ritorno del tempo per l'array collegato
+ * @param rand_time puntatore al ritorno del tempo per l'array casuale 
  */
-int main(int argc, char* argv[]) {
-	// ottieni input, ./stride [S] [ITERS]
-	if(argc < 3) {
-		printf("Troppi pochi argomenti\n");
-		return 1;
-	}
-
-	size_t S = atoi(argv[1]);
-	int ITERS = atoi(argv[2]);
-
+void measure(int ITERS, int* link_time, int* rand_time) {
 	int array[S * ITERS];
 
 	// inizializza array collegato
@@ -84,7 +86,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	// misura array collegato 
-	uint64_t link_time = stride(array, S, ITERS);
+	*link_time += stride(array, S, ITERS);
 
 	// inizializza array casuale
 	// permuta array per evitare cicli del tipo 0->1 1->0
@@ -104,11 +106,30 @@ int main(int argc, char* argv[]) {
 	}
 
 	// misura array casuale 
-	uint64_t rand_time = stride(array, S, ITERS);
-
-	// stampa risultati
-	printf("%llu, %llu\n", link_time, rand_time);
+	*rand_time += stride(array, S, ITERS);
 
 	return 0;
 }
 
+int main() {
+	// fai ITER_STEPS passi 
+	for(int i = 0; i < ITERS_STEPS; i++) {
+		int ITERS = MIN_ITERS + ((MAX_ITERS - MIN_ITERS) / ITERS_STEPS) * i;
+
+		// inizializza contatori
+		int link_time, rand_time;
+		link_time = rand_time = 0;
+
+		// esegui TRIES test
+		for(int j = 0; j < TRIES; j++) {
+			measure(ITERS, link_time, rand_time);
+		}
+
+		// calcola valor medio
+		link_time /= TRIES;
+		rand_time /= TRIES;
+
+		// stampa
+		printf("%d, %d\n", link_time, rand_time);
+	}
+}
