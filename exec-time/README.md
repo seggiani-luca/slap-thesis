@@ -27,7 +27,7 @@ Cose carine:
 
 2. Il programma dovrebbe restituire il tempo di esecuzione.
 
-Vogliamo fare numerosi test, quindi servirà un programma "host" che lancia più
+Vogliamo fare numerosi test, quindi servirà un programma "main" che lancia più
 volte questo sottoprogramma e compila un CSV o qualcosa con tutti i tempi di
 esecuzione, per farne un grafico.
 Il grafico può essere preparato con MATLAB.
