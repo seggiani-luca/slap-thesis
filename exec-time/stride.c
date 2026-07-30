@@ -129,6 +129,6 @@ int main() {
 		rand_time /= TRIES;
 
 		// stampa
-		printf("%d, %d\n", link_time, rand_time);
+		printf("%d, %d, %d\n", ITERS, link_time, rand_time);
 	}
 }
