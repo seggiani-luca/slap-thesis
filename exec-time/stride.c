@@ -37,7 +37,6 @@ uint64_t stride(int* in, size_t S, int ITERS) {
     return end - start;
 }
 
-
 int main(int argc, char* argv[]) {
 	// ottieni input, ./stride [S] [ITERS]
 	if(argc < 3) {
@@ -54,12 +53,26 @@ int main(int argc, char* argv[]) {
 	for(int i = 0; i < ITERS; i++){
 		array[i * S] = (i + 1) * S;
 	}
+
+	// misura array collegato 
 	uint64_t link_time = stride(array, S, ITERS);
 
 	// inizializza array casuale
-	for(int i = 0 ; i < ITERS; i++){
-		array[i * S] = (rand() % ITERS) * S;
+	int *perm = malloc(ITERS * sizeof(int));
+	for(int i = 0; i < ITERS; i++) {
+		perm[i] = i;
 	}
+	for(int i = ITERS - 1; i > 0; i--) {
+		int j = rand() % (i + 1);
+		int t = perm[i];
+		perm[i] = perm[j];
+		perm[j] = t;
+	}
+	for(int i = 0; i < ITERS; i++) {
+		array[i * S] = perm[i] * S;
+	}
+
+	// misura array casuale 
 	uint64_t rand_time = stride(array, S, ITERS);
 
 	// stampa risultati
