@@ -1,17 +1,16 @@
 # SLAP
 
-Lavoro relativo alla vulnerabilità SLAP su Apple Silicon M2
+Lavoro relativo alla vulnerabilità SLAP su Apple Silicon M2.
+Ciò che si vuole fare è:
 
-## Scaletta
-
-Piano di azione:
-
-1. Dimostrare differenze tempo esec. letture stride e senza stride;
-2. Dimostrare che il LAP predice attraverso il side channel (cache);
-    -> Mail lettieri
-3. Realizzare una primitiva di lettura arbitraria?
-4. Fare qualcosa di ganzo (loro fanno Gmail, te puoi fare altro)
-    4.1. Crei un sandbox e dimostri che puoi romperlo;
-    4.2. Rompi qualcosa di vero? Potresti rompere l'ASLR e mappare le pagine 
-         dello spazio di indirizz.
-    4.3. Rompi Gmail come loro? Poco divertente ma ok.
+1. (`exec_time`) Dimostrare le differenze in tempo di esecuzione fra accessi ad
+   un array con struttura predicibile e casuale, per provare che il LAP esiste;
+2. Dimostrare che il LAP predice e scoprire le predizioni attraverso un side 
+   channel (che sarà la cache);
+3. Realizzare una primitiva di lettura di memoria arbitraria attraverso il side
+   channel.
+4. Riportare il tutto ad un caso reale, che potrò essere: 
+    - Creare un sandbox e dimostrare che può essere rotto dalla vulnerabilità;
+    - Rompere qualcosa di vero, ad esempio l'ASLR, mappaando le pagine dello 
+      spazio di indirizzamento;
+    - Rompere un servizio come Gmail, come riportato nell'articolo originale.

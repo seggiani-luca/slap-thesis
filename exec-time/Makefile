@@ -1,25 +1,27 @@
-CC = clang
-CFLAGS = -O2
-
-TARGET = stride
-SRC = stride.c
-
-CSV = csv.txt
-PLOT = plot.py
-
-S ?= 16
-ITERS ?= 1000000
-
 .PHONY: all run clean
 
-all: $(TARGET)
+# compilatore
+CC = clang
+CFLAGS = -O3 -mcpu=apple-m2
+
+# codice 
+SRC = stride.c
+PLOT = plot.py
+
+# oggetti
+TARGET = stride.o
+CSV = data.csv 
+
+all: $(TARGET) run plot
 
 $(TARGET): $(SRC)
 	@$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
 
 run: $(TARGET)
 	@./$(TARGET) $(S) $(ITERS) > $(CSV)
-	@python3 $(PLOT)
+
+plot: $(CSV)
+	@python3 $(PLOT) $(CSV)
 
 clean:
 	@rm -f $(TARGET) $(CSV)
