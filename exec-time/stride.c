@@ -21,7 +21,7 @@
 #define S (STRIDE_BYTES / sizeof(int))
 
 // Numero di misure eseguite per ciascun valore di ITERS.
-#define TRIES 100
+#define TRIES 10000
 
 /**
  * Restituisce il tempo corrente in nanosecondi. Si appoggia alla
@@ -155,7 +155,7 @@ void measure(int ITERS, uint64_t* link_time, uint64_t* rand_time, uint64_t* sarv
     *rand_time = stride(array, ITERS);
 
 	for(int i = 0; i < ITERS; i++) {
-		 array[i*S] = ((rand() % (ITERS-1)) + 1) * S;
+		array[i*S] = ((rand() % (ITERS-1)) + 1) * S;
 	}
 	
 
