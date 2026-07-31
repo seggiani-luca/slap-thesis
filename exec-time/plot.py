@@ -17,7 +17,7 @@ link_times = []
 # Tempi misurati per accessi ad array casuali 
 rand_times = []
 
-# Tempi misurati per accessi ad array sa+rv 
+# Tempi misurati per accessi ad array SA + RV 
 sarv_times = []
 
 # Legge i dati dal file CSV.
@@ -31,12 +31,8 @@ with open("data.csv", newline="") as f:
         rand_times.append(int(row[2]))
         sarv_times.append(int(row[3]))
 
-# Grafico STRIDE vs RANDOM
-# Linee verticali
+# Grafico Collegati vs Casuali 
 plt.figure()
-
-plt.xticks([x for x in range(250, max(iters)+1, 250)])
-plt.grid(axis="x", alpha=0.3)
 
 # Visualizza i dati come grafico a dispersione
 plt.plot(iters, link_times, label="Collegati")
@@ -52,11 +48,8 @@ plt.legend()
 plt.savefig("figure/stride-random.png")
 plt.show()
 
-# Grafico SARV vs RANDOM
+# Grafico SA + RV vs Casuali 
 plt.figure()
-
-plt.xticks([x for x in range(250, max(iters)+1, 250)])
-plt.grid(axis="x", alpha=0.3)
 
 plt.plot(iters, sarv_times, label="SA+RV")
 plt.plot(iters, rand_times, label="Random")
