@@ -35,12 +35,12 @@ with open("data.csv", newline="") as f:
 # Linee verticali
 plt.figure()
 
-plt.xticks(iters)
+plt.xticks([x for x in range(250, max(iters)+1, 250)])
 plt.grid(axis="x", alpha=0.3)
 
 # Visualizza i dati come grafico a dispersione
 plt.plot(iters, link_times, label="Collegati")
-plt.scatter(iters, rand_times, label="Casuali")
+plt.plot(iters, rand_times, label="Casuali")
 
 # Etichette degli assi
 plt.xlabel("Numero iterazioni")
@@ -55,11 +55,11 @@ plt.show()
 # Grafico SARV vs RANDOM
 plt.figure()
 
-plt.xticks(iters)
+plt.xticks([x for x in range(250, max(iters)+1, 250)])
 plt.grid(axis="x", alpha=0.3)
 
 plt.plot(iters, sarv_times, label="SA+RV")
-plt.scatter(iters, rand_times, label="Random")
+plt.plot(iters, rand_times, label="Random")
 
 plt.xlabel("Numero iterazioni")
 plt.ylabel("Tempo di esecuzione (ns)")

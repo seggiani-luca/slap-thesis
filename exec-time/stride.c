@@ -15,11 +15,13 @@
 // Numero di passi tra MIN_ITERS e MAX_ITERS.
 #define ITERS_STEPS 10
 
+#define STRIDE_BYTES 32
+
 // Valore di S.
-#define S 8
+#define S (STRIDE_BYTES / sizeof(int))
 
 // Numero di misure eseguite per ciascun valore di ITERS.
-#define TRIES 1000
+#define TRIES 100
 
 /**
  * Restituisce il tempo corrente in nanosecondi. Si appoggia alla
@@ -118,7 +120,7 @@ uint64_t sarv(int* in, int ITERS) {
  * @param link_time puntatore al ritorno del tempo per l'array collegato
  * @param rand_time puntatore al ritorno del tempo per l'array casuale 
  */
-void measure(int ITERS, int* link_time, int* rand_time, int* sarv_time) {
+void measure(int ITERS, uint64_t* link_time, uint64_t* rand_time, uint64_t* sarv_time) {
     // usa un unico array
     int array[S * ITERS];
 
@@ -129,7 +131,7 @@ void measure(int ITERS, int* link_time, int* rand_time, int* sarv_time) {
 	array[(ITERS - 1) * S] = 0;
 
     // misura array collegato 
-    *link_time += stride(array, ITERS);
+    *link_time = stride(array, ITERS);
 
     // inizializza array casuale, permutando per evitare cicli
     int *perm = malloc(ITERS * sizeof(int));
@@ -150,16 +152,16 @@ void measure(int ITERS, int* link_time, int* rand_time, int* sarv_time) {
     array[perm[ITERS - 1] * S] = perm[0] * S;
 
     // misura array casuale 
-    *rand_time += stride(array, ITERS);
+    *rand_time = stride(array, ITERS);
 
 	for(int i = 0; i < ITERS; i++) {
-		array[i * S] = (perm[i] + 1) * S;
+		 array[i*S] = ((rand() % (ITERS-1)) + 1) * S;
 	}
-	free(perm);
+	
 
 	// misura array sa+rv
-	*sarv_time += sarv(array, ITERS);
-
+	*sarv_time = sarv(array, ITERS);
+	free(perm);
 }
 
 /**
@@ -173,30 +175,52 @@ void measure(int ITERS, int* link_time, int* rand_time, int* sarv_time) {
  * @return EXIT_SUCCESS.
  */
 
+int compare(const void *a, const void *b) {
+	uint64_t x = *(uint64_t*)a;
+	uint64_t y = *(uint64_t*)b;
+
+	if(x < y) return -1;
+	if(x > y) return 1;
+	return 0;
+}
 
 int main() {
 	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
 
     // fai ITER_STEPS passi 
-    for(int i = 0; i < ITERS_STEPS; i++) {
-        int ITERS = MIN_ITERS + ((MAX_ITERS - MIN_ITERS) / (ITERS_STEPS - 1)) * i;
-
+    //for(int i = 0; i < ITERS_STEPS; i++) {
+    //    int ITERS = MIN_ITERS + ((MAX_ITERS - MIN_ITERS) / (ITERS_STEPS - 1)) * i;
+	for(int ITERS = MIN_ITERS; ITERS <= MAX_ITERS; ITERS += 10) {
         // inizializza contatori
-        int link_time, rand_time, sarv_time;
-        link_time = rand_time = sarv_time = 0;
+        uint64_t link_times[TRIES];
+		uint64_t rand_times[TRIES];
+		uint64_t sarv_times[TRIES];
 
         // esegui TRIES test
         for(int j = 0; j < TRIES; j++) {
-            measure(ITERS, &link_time, &rand_time, &sarv_time);
+            measure(ITERS, &link_times[j], &rand_times[j], &sarv_times[j]);
         }
 
         // calcola valor medio
-        link_time /= TRIES;
-        rand_time /= TRIES;
-		sarv_time /= TRIES;
+        //link_time /= TRIES;
+        //rand_time /= TRIES;
+		//sarv_time /= TRIES;
+
+		qsort(link_times, TRIES, sizeof(uint64_t), compare);
+		qsort(rand_times, TRIES, sizeof(uint64_t), compare);
+		qsort(sarv_times, TRIES, sizeof(uint64_t), compare);
+
+		uint64_t link_median = link_times[TRIES/2];
+		uint64_t rand_median = rand_times[TRIES/2];
+		uint64_t sarv_median = sarv_times[TRIES/2];
 	
 
         // stampa in formato CSV
-        printf("%d, %d, %d, %d\n", ITERS, link_time, rand_time, sarv_time);
+        //printf("%d, %d, %d, %d\n", ITERS, link_time, rand_time, sarv_time);
+		printf("%d, %llu, %llu, %llu\n",
+       ITERS,
+       link_median,
+       rand_median,
+       sarv_median);
     }
 }
