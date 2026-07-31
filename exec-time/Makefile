@@ -5,7 +5,7 @@ CC = clang
 CFLAGS = -O3 -mcpu=apple-m2
 
 # codice 
-SRC = stride.c
+SRC = stride.c utils.c
 PLOT = plot.py
 
 # oggetti

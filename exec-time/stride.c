@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <mach/mach_time.h>
+#include <pthread.h>
+#include <sys/qos.h>
+#include "utils.h"
 
 // Valore minimo di ITERS.
 #define MIN_ITERS 10
@@ -10,7 +13,7 @@
 #define MAX_ITERS 10000
 
 // Numero di passi tra MIN_ITERS e MAX_ITERS.
-#define ITERS_STEPS 10
+#define ITERS_STEPS 15
 
 // Valore di S.
 #define S 32
@@ -77,6 +80,33 @@ uint64_t stride(int* in, int ITERS) {
     return end - start;
 }
 
+uint64_t sarv(int* in, int ITERS) {
+    // array e dep volatili per evitare ottimizzazioni
+    volatile int* array = in;
+    volatile int dep;
+
+    // effettua la dry run
+    dep = 0;
+	for (int i = 0; i < ITERS; ++i){
+		dep += min(array[dep], S);
+	}
+
+    // avvia il timer
+    uint64_t start = get_time();
+
+    // effettua la wet run
+    dep = 0;
+	for (int i = 0; i < ITERS; ++i){
+		dep += min(array[dep], S);
+	}
+    
+    // ferma il timer
+    uint64_t end = get_time();
+    
+    // restituisci tempo impiegato dalla wet run
+    return end - start;
+}
+
 /**
  * Misura la latenza degli accessi in memoria in due diverse configurazioni di 
  * accesso a un array:
@@ -88,35 +118,47 @@ uint64_t stride(int* in, int ITERS) {
  * @param link_time puntatore al ritorno del tempo per l'array collegato
  * @param rand_time puntatore al ritorno del tempo per l'array casuale 
  */
-void measure(int ITERS, int* link_time, int* rand_time) {
+void measure(int ITERS, int* link_time, int* rand_time, int* sarv_time) {
     // usa un unico array
     int array[S * ITERS];
 
     // inizializza array collegato
-    for(int i = 0; i < ITERS; i++){
+    for(int i = 0; i < ITERS - 1 ; i++){
         array[i * S] = (i + 1) * S;
     }
+	array[(ITERS - 1) * S] = 0;
 
     // misura array collegato 
     *link_time += stride(array, ITERS);
 
     // inizializza array casuale, permutando per evitare cicli
     int *perm = malloc(ITERS * sizeof(int));
+	if (perm == NULL)
+    	return;
     for(int i = 0; i < ITERS; i++) {
         perm[i] = i;
     }    
-    for(int i = ITERS - 1; i > 0; i--) {
-        int j = rand() % (i + 1);
-        int t = perm[i];
-        perm[i] = perm[j];
-        perm[j] = t;
-    }
-    for(int i = 0; i < ITERS; i++) {
-        array[i * S] = perm[i] * S;
-    }
+	for(int i = ITERS - 1; i > 1; i--) {
+		int j = 1 + rand() % i;
+		int t = perm[i];
+		perm[i] = perm[j];
+		perm[j] = t;
+	}
+	for(int i = 0; i < ITERS - 1; i++) {
+		array[perm[i] * S] = perm[i + 1] * S;
+	}
+    array[perm[ITERS - 1] * S] = perm[0] * S;
 
     // misura array casuale 
     *rand_time += stride(array, ITERS);
+
+	for(int i = 0; i < ITERS; i++) {
+		array[i * S] = (perm[i] + 1) * S;
+	}
+	free(perm);
+
+	// misura array sa+rv
+	*sarv_time += sarv(array, ITERS);
 
 }
 
@@ -130,25 +172,31 @@ void measure(int ITERS, int* link_time, int* rand_time) {
  *
  * @return EXIT_SUCCESS.
  */
+
+
 int main() {
+	pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
+
     // fai ITER_STEPS passi 
     for(int i = 0; i < ITERS_STEPS; i++) {
-        int ITERS = MIN_ITERS + ((MAX_ITERS - MIN_ITERS) / ITERS_STEPS) * i;
+        int ITERS = MIN_ITERS + ((MAX_ITERS - MIN_ITERS) / (ITERS_STEPS - 1)) * i;
 
         // inizializza contatori
-        int link_time, rand_time;
-        link_time = rand_time = 0;
+        int link_time, rand_time, sarv_time;
+        link_time = rand_time = sarv_time = 0;
 
         // esegui TRIES test
         for(int j = 0; j < TRIES; j++) {
-            measure(ITERS, &link_time, &rand_time);
+            measure(ITERS, &link_time, &rand_time, &sarv_time);
         }
 
         // calcola valor medio
         link_time /= TRIES;
         rand_time /= TRIES;
+		sarv_time /= TRIES;
+	
 
         // stampa in formato CSV
-        printf("%d, %d, %d\n", ITERS, link_time, rand_time);
+        printf("%d, %d, %d, %d\n", ITERS, link_time, rand_time, sarv_time);
     }
 }
