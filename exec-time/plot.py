@@ -49,6 +49,7 @@ plt.title("Stride vs Random")
 
 # Mostra la legenda e il grafico
 plt.legend()
+plt.savefig("figure/stride-random.png")
 plt.show()
 
 # Grafico SARV vs RANDOM
@@ -65,4 +66,5 @@ plt.ylabel("Tempo di esecuzione (ns)")
 plt.title("SA+RV vs Random")
 
 plt.legend()
+plt.savefig("figure/random-sarv.png")
 plt.show()
