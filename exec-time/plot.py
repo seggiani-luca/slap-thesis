@@ -27,13 +27,17 @@ with open("data.csv", newline="") as f:
         link_times.append(int(row[1]))
         rand_times.append(int(row[2]))
 
+# Linee verticali
+plt.xticks(iters)
+plt.grid(axis="x", alpha=0.3)
+
 # Visualizza i dati come grafico a dispersione
 plt.scatter(iters, link_times, label="Collegati")
 plt.scatter(iters, rand_times, label="Casuali")
 
 # Etichette degli assi
 plt.xlabel("Numero iterazioni")
-plt.ylabel("Tempo di esecuzione")
+plt.ylabel("Tempo di esecuzione (ns)")
 
 # Mostra la legenda e il grafico
 plt.legend()

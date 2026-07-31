@@ -73,5 +73,6 @@ I risultati vengono prodotti in formato CSV secondo lo schema:
 ```csv
     ITERS, linked_time, random_time
 ```
-e successivamente elaborati mediante uno script Python che realizza il grafico 
-comparativo delle due configurazioni.
+e successivamente elaborati mediante uno script Python che realizza il seguente
+grafico comparativo delle due configurazioni:
+![Grafico tempi](figure/exec_time.png)
