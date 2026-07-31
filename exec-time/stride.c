@@ -16,10 +16,10 @@
 #define ITERS_STEPS 15
 
 // Valore di S.
-#define S 32
+#define S 16
 
 // Numero di misure eseguite per ciascun valore di ITERS.
-#define TRIES 1000
+#define TRIES 10000
 
 /**
  * Restituisce il tempo corrente in nanosecondi. Si appoggia alla
