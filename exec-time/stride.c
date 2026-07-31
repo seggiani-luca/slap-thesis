@@ -10,16 +10,16 @@
 #define MIN_ITERS 10
 
 // Valore massimo di ITERS.
-#define MAX_ITERS 10000
+#define MAX_ITERS 1000
 
 // Numero di passi tra MIN_ITERS e MAX_ITERS.
-#define ITERS_STEPS 15
+#define ITERS_STEPS 10
 
 // Valore di S.
-#define S 16
+#define S 8
 
 // Numero di misure eseguite per ciascun valore di ITERS.
-#define TRIES 10000
+#define TRIES 1000
 
 /**
  * Restituisce il tempo corrente in nanosecondi. Si appoggia alla
