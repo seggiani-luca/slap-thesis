@@ -906,6 +906,9 @@ static struct {
 int beg_pmu() {
   int ret = 0;
 
+  // reset state
+  memset(pmu_state, 0, sizeof(pmu_state)); 
+
   // load dylib
   if (!lib_init()) {
     printf("Error: %s\n", lib_err_msg);
