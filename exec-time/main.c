@@ -55,7 +55,7 @@ uint64_t stride(int *in, int ITERS) {
   }
 
   // avvia la profilazione
-  int beg = get_time();
+  uint64_t beg = get_time();
   // if (beg_pmu()) {
   //   printf("Errore avvio PMU\n");
   // }
@@ -67,7 +67,7 @@ uint64_t stride(int *in, int ITERS) {
   }
 
   // termina la profilazione
-  int end = get_time();
+  uint64_t end = get_time();
   // uint64_t ret;
   // if (end_pmu(&ret)) {
   //   printf("Errore termine PMU\n");
@@ -104,7 +104,7 @@ uint64_t sarv(int *in, int ITERS) {
   }
 
   // avvia la profilazione
-  int beg = get_time();
+  uint64_t beg = get_time();
   // if (beg_pmu()) {
   //   printf("Errore avvio PMU\n");
   // }
@@ -117,7 +117,7 @@ uint64_t sarv(int *in, int ITERS) {
   }
 
   // termina la profilazione
-  int end = get_time();
+  uint64_t end = get_time();
   // uint64_t ret;
   // if (end_pmu(&ret)) {
   //   printf("Errore termine PMU\n");
