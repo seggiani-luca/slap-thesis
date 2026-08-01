@@ -55,9 +55,10 @@ uint64_t stride(int *in, int ITERS) {
   }
 
   // avvia la profilazione
-  if (beg_pmu()) {
-    printf("Errore avvio PMU\n");
-  }
+  int beg = get_time();
+  // if (beg_pmu()) {
+  //   printf("Errore avvio PMU\n");
+  // }
 
   // effettua la wet run
   dep = 0;
@@ -66,13 +67,14 @@ uint64_t stride(int *in, int ITERS) {
   }
 
   // termina la profilazione
-  uint64_t ret;
-  if (end_pmu(&ret)) {
-    printf("Errore termine PMU\n");
-  }
+  int end = get_time();
+  // uint64_t ret;
+  // if (end_pmu(&ret)) {
+  //   printf("Errore termine PMU\n");
+  // }
 
   // restituisci tempo impiegato dalla wet run
-  return ret;
+  return end - beg;
 }
 
 /**
@@ -102,9 +104,11 @@ uint64_t sarv(int *in, int ITERS) {
   }
 
   // avvia la profilazione
-  if (beg_pmu()) {
-    printf("Errore avvio PMU\n");
-  }
+  int beg = get_time();
+  // if (beg_pmu()) {
+  //   printf("Errore avvio PMU\n");
+  // }
+
 
   // effettua la wet run
   dep = 0;
@@ -113,13 +117,14 @@ uint64_t sarv(int *in, int ITERS) {
   }
 
   // termina la profilazione
-  uint64_t ret;
-  if (end_pmu(&ret)) {
-    printf("Errore termine PMU\n");
-  }
+  int end = get_time();
+  // uint64_t ret;
+  // if (end_pmu(&ret)) {
+  //   printf("Errore termine PMU\n");
+  // }
 
   // restituisci tempo impiegato dalla wet run
-  return ret;
+  return end - beg;
 }
 
 /**
@@ -139,7 +144,7 @@ void measure(int ITERS, uint64_t *link_time, uint64_t *rand_time,
   int array[S * ITERS];
 
   // inizializza array striding
-  for (int i = 0; i < ITERS - 1; i++) {
+  for (int i = 0; i < ITERS; i++) {
     array[i * S] = (i + 1) * S;
   }
 
