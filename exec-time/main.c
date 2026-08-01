@@ -1,24 +1,23 @@
+#include "../utils/utils.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/qos.h>
 
-// Valore minimo di ITERS.
+// Valore minimo di ITERS
 #define MIN_ITERS 10
 
-// Valore massimo di ITERS.
+// Valore massimo di ITERS
 #define MAX_ITERS 1000
 
-// Passo nello scorrimento fra MIN_ITERS e MAX_ITERS.
+// Passo nello scorrimento fra MIN_ITERS e MAX_ITERS
 #define ITERS_STEP 10
 
+// Byte di stride
 #define STRIDE_BYTES 32
 
-// Valore di S.
+// Valore di S
 #define S (STRIDE_BYTES / sizeof(int))
-
-// Numero di misure eseguite per ciascun valore di ITERS.
-#define TRIES 100
 
 /**
  * Compara due numeri, restituendo il minore.
@@ -55,8 +54,10 @@ uint64_t stride(int *in, int ITERS) {
     dep = array[dep];
   }
 
-  // avvia il timer
-  uint64_t start = get_time();
+  // avvia la profilazione
+  if (beg_pmu()) {
+    printf("Errore avvio PMU\n");
+  }
 
   // effettua la wet run
   dep = 0;
@@ -64,11 +65,14 @@ uint64_t stride(int *in, int ITERS) {
     dep = array[dep];
   }
 
-  // ferma il timer
-  uint64_t end = get_time();
+  // termina la profilazione
+  uint64_t ret;
+  if (!end_pmu(&ret)) {
+    printf("Errore termine PMU\n");
+  }
 
   // restituisci tempo impiegato dalla wet run
-  return end - start;
+  return ret;
 }
 
 /**
@@ -97,8 +101,10 @@ uint64_t sarv(int *in, int ITERS) {
     dep += min(array[dep], S);
   }
 
-  // avvia il timer
-  uint64_t start = get_time();
+  // avvia la profilazione
+  if (beg_pmu()) {
+    printf("Errore avvio PMU\n");
+  }
 
   // effettua la wet run
   dep = 0;
@@ -106,22 +112,25 @@ uint64_t sarv(int *in, int ITERS) {
     dep += min(array[dep], S);
   }
 
-  // ferma il timer
-  uint64_t end = get_time();
+  // termina la profilazione
+  uint64_t ret;
+  if (!end_pmu(&ret)) {
+    printf("Errore termine PMU\n");
+  }
 
   // restituisci tempo impiegato dalla wet run
-  return end - start;
+  return ret;
 }
 
 /**
  * Misura la latenza degli accessi in memoria in due diverse configurazioni di
  * accesso a un array:
- * - Array collegato: ogni elemento punta al successivo con uno stride fisso;
+ * - Array striding: ogni elemento punta al successivo con uno stride fisso;
  * - Array casuale: ottenuto tramite una permutazione casuale. Si permuta per
  *   evitare cicli nei collegamenti (0 -> 1, 1 -> 0, invalidano i risultati).
  *
  * @param ITERS Numero di iterazioni della sequenza di accessi.
- * @param link_time puntatore al ritorno del tempo per l'array collegato
+ * @param link_time puntatore al ritorno del tempo per l'array striding
  * @param rand_time puntatore al ritorno del tempo per l'array casuale
  */
 void measure(int ITERS, uint64_t *link_time, uint64_t *rand_time,
@@ -129,12 +138,12 @@ void measure(int ITERS, uint64_t *link_time, uint64_t *rand_time,
   // usa un unico array
   int array[S * ITERS];
 
-  // inizializza array collegato
+  // inizializza array striding
   for (int i = 0; i < ITERS - 1; i++) {
     array[i * S] = (i + 1) * S;
   }
 
-  // misura array collegato
+  // misura array striding
   *link_time = stride(array, ITERS);
 
   // inizializza array casuale permutando per evitare cicli
@@ -156,6 +165,7 @@ void measure(int ITERS, uint64_t *link_time, uint64_t *rand_time,
   // misura array casuale
   *rand_time = stride(array, ITERS);
 
+  // inizializza array SA + RV con multipli casuali di S
   for (int i = 0; i < ITERS; i++) {
     array[i * S] = ((rand() % (ITERS - 1)) + 1) * S;
   }
@@ -187,7 +197,7 @@ int compare(const void *a, const void *b) {
  * Esegue la serie di misure della latenza di accesso alla memoria.
  *
  * Per ciascun valore di ITERS vengono effettuate TRIES misure dei pattern
- * collegato, casuale e sa+rv. I tempi mediani ottenuti vengono stampati,
+ * striding, casuale e sa+rv. I tempi mediani ottenuti vengono stampati,
  * formato CSV:
  *
  *     ITERS, link_median, random_median, sarv_median
@@ -195,32 +205,16 @@ int compare(const void *a, const void *b) {
  * @return EXIT_SUCCESS.
  */
 int main() {
+  // classe di QOS per P-core
   pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
 
   // esegui passaggi da MIN_ITERS a MAX_ITERS
   for (int ITERS = MIN_ITERS; ITERS <= MAX_ITERS; ITERS += ITERS_STEP) {
-    // inizializza contatori
-    uint64_t link_times[TRIES];
-    uint64_t rand_times[TRIES];
-    uint64_t sarv_times[TRIES];
-
-    // esegui TRIES test
-    for (int j = 0; j < TRIES; j++) {
-      measure(ITERS, &link_times[j], &rand_times[j], &sarv_times[j]);
-    }
-
-    // ordina i valori
-    qsort(link_times, TRIES, sizeof(uint64_t), compare);
-    qsort(rand_times, TRIES, sizeof(uint64_t), compare);
-    qsort(sarv_times, TRIES, sizeof(uint64_t), compare);
-
-    // calcola la mediana
-    uint64_t link_median = link_times[TRIES / 2];
-    uint64_t rand_median = rand_times[TRIES / 2];
-    uint64_t sarv_median = sarv_times[TRIES / 2];
+    uint64_t link_time, rand_time, sarv_time;
+    measure(ITERS, &link_time, &rand_time, &sarv_time);
 
     // stampa in formato CSV
-    printf("%d, %llu, %llu, %llu\n", ITERS, link_median, rand_median,
-           sarv_median);
+    printf("Iterazioni, Striding, Casuale, SA + RV");
+    printf("%d, %lu, %lu, %lu\n", ITERS, link_time, rand_time, sarv_time);
   }
 }

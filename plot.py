@@ -22,9 +22,9 @@ def run_proc(exp_dir):
     return stdout
 
 # Legge un file CSV e restituisce titoli e dati
-def parse_csv(str):
+def parse_csv(csv_str):
     # leggi CSV
-    reader = csv.reader(StringIO(str))
+    reader = csv.reader(StringIO(csv_str))
 
     # leggi prima i titoli
     headers = next(reader)
@@ -55,9 +55,10 @@ for _ in range(tries):
 
 # inizializza array di colonne mediane
 data = []
+cols = len(headers)
 
 # scorri ogni colonna
-for col in range(len(headers)):
+for col in range(cols):
     # ottieni il numero di righe della colonna
     rows = len(results[0][col])
 
@@ -80,7 +81,15 @@ for col in range(len(headers)):
     data.append(medians)
 
 # stampa grafico
-print("Headers:")
-print(headers)
-print("Data:")
-print(data)
+plt.figure()
+
+# stampa ogni colonna
+for col in range(cols):
+    if col == 0:
+        continue
+    plt.plot(data[0], data[col], label=headers[col])
+
+plt.xlabel(headers[0])
+
+plt.legend()
+plt.show()

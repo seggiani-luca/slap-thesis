@@ -8,10 +8,13 @@ CFLAGS := -O3
 PLOT := python plot.py
 TRIES := 100
 
+# utility
+UTILS := utils/kperf.c utils/utils.c
+
 # compila un esperimento o un test
 comp-%:
 	@echo "Compilo esperimento" $* "..."
-	@$(CC) $(CFLAGS) $*/main.c -o $*/main.o
+	@$(CC) $(CFLAGS) $(UTILS) $*/main.c -o $*/main.o
 
 # fa il plotting di un esperimento o un test
 plot-%:

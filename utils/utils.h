@@ -4,11 +4,19 @@
 #include <stdint.h>
 
 /**
- * Restituisce il tempo corrente in nanosecondi. Si appoggia alla
- * mach_absolute_time per ottenere tempo indipendente dal wall clock.
+ * Comincia una sessione di profilazione.
  *
- * @return Tempo corrente in nanosecondi.
+ * @return Valore di ritorno.
  */
-uint64_t get_time();
+int beg_pmu();
+
+/**
+ * Termina una sessione di profilazione.
+ *
+ * @param cycles Valore di ritorno per i cicli di clock.
+ *
+ * @return Valore di ritorno.
+ */
+int end_pmu(uint64_t *cycles);
 
 #endif
