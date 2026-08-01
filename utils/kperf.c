@@ -1034,7 +1034,6 @@ int end_pmu(uint64_t *cycles) {
   kpc_force_all_ctrs_set(0);
 
   // result
-  printf("counters value:\n");
   for (usize i = 0; i < pmu_state.ev_count; i++) {
     // for now only get cycles
     if (i != 0)

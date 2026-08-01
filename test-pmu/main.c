@@ -14,7 +14,7 @@ int main() {
 
   // termina la profilazione
   uint64_t ret;
-  if (!end_pmu(&ret)) {
+  if (end_pmu(&ret)) {
     printf("Errore termine PMU\n");
   }
 
