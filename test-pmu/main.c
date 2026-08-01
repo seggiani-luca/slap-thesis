@@ -18,7 +18,7 @@ int main() {
     printf("Errore termine PMU\n");
   }
 
-  printf("Trascorsi %lu cicli\n", ret);
+  printf("Cicli\n%lu\n", ret);
 
   return 0;
 }
