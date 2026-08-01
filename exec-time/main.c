@@ -217,7 +217,7 @@ int main() {
     measure(ITERS, &link_time, &rand_time, &sarv_time);
 
     // stampa in formato CSV
-    printf("Iterazioni, Striding, Casuale, SA + RV");
+    printf("Iterazioni, Striding, Casuale, SA + RV\n");
     printf("%d, %llu, %llu, %llu\n", ITERS, link_time, rand_time, sarv_time);
   }
 }
