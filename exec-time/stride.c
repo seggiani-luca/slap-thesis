@@ -1,9 +1,7 @@
-#include <mach/mach_time.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/qos.h>
-#include <time.h>
 
 // Valore minimo di ITERS.
 #define MIN_ITERS 10
@@ -31,25 +29,6 @@
  * @return Il minimo fra a e b.
  */
 int min(int a, int b) { return (a < b) ? a : b; }
-
-/**
- * Restituisce il tempo corrente in nanosecondi. Si appoggia alla
- * mach_absolute_time per ottenere tempo indipendente dal wall clock.
- *
- * @return Tempo corrente in nanosecondi.
- */
-uint64_t get_time() {
-  // ottieni info da mach
-  static mach_timebase_info_data_t info = {0};
-  if (info.denom == 0)
-    mach_timebase_info(&info);
-
-  // ottieni tick corrente
-  uint64_t t = mach_absolute_time();
-
-  // restituisci tempo corrente in millisecondi
-  return t * info.numer / info.denom;
-}
 
 /**
  * Effettua una percorrenza completa dell'array, misurando il tempo impiegato.
@@ -177,9 +156,9 @@ void measure(int ITERS, uint64_t *link_time, uint64_t *rand_time,
   // misura array casuale
   *rand_time = stride(array, ITERS);
 
-	for(int i = 0; i < ITERS; i++) {
-		array[i * S] = ((rand() % (ITERS - 1)) + 1) * S;
-	}
+  for (int i = 0; i < ITERS; i++) {
+    array[i * S] = ((rand() % (ITERS - 1)) + 1) * S;
+  }
 
   // misura array SA + RV
   *sarv_time = sarv(array, ITERS);
@@ -208,7 +187,8 @@ int compare(const void *a, const void *b) {
  * Esegue la serie di misure della latenza di accesso alla memoria.
  *
  * Per ciascun valore di ITERS vengono effettuate TRIES misure dei pattern
- * collegato, casuale e sa+rv. I tempi mediani ottenuti vengono stampati, formato CSV:
+ * collegato, casuale e sa+rv. I tempi mediani ottenuti vengono stampati,
+ * formato CSV:
  *
  *     ITERS, link_median, random_median, sarv_median
  *
@@ -229,12 +209,12 @@ int main() {
       measure(ITERS, &link_times[j], &rand_times[j], &sarv_times[j]);
     }
 
-	// ordina i valori 
+    // ordina i valori
     qsort(link_times, TRIES, sizeof(uint64_t), compare);
     qsort(rand_times, TRIES, sizeof(uint64_t), compare);
     qsort(sarv_times, TRIES, sizeof(uint64_t), compare);
 
-	// calcola la mediana
+    // calcola la mediana
     uint64_t link_median = link_times[TRIES / 2];
     uint64_t rand_median = rand_times[TRIES / 2];
     uint64_t sarv_median = sarv_times[TRIES / 2];
