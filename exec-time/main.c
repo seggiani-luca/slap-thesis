@@ -209,7 +209,7 @@ int main() {
   pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
 
   // stampa header CSV
-  printf("Iterazioni, Striding, Casuale, SA + RV");
+  printf("Iterazioni, Striding, Casuale, SA + RV\n");
   
   // esegui passaggi da MIN_ITERS a MAX_ITERS
   for (int ITERS = MIN_ITERS; ITERS <= MAX_ITERS; ITERS += ITERS_STEP) {
