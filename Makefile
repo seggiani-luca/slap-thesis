@@ -10,7 +10,7 @@ PLOT := python3 plot.py
 TRIES := 100
 
 # utility
-UTILS := utils/kperf.c utils/utils.c
+UTILS :=
 
 # compila un esperimento o un test
 comp-%:

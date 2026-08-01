@@ -109,7 +109,6 @@ uint64_t sarv(int *in, int ITERS) {
   //   printf("Errore avvio PMU\n");
   // }
 
-
   // effettua la wet run
   dep = 0;
   for (int i = 0; i < ITERS; ++i) {
@@ -210,6 +209,8 @@ int compare(const void *a, const void *b) {
  * @return EXIT_SUCCESS.
  */
 int main() {
+  srand(getpid() ^ mach_absolute_time());
+
   // classe di QOS per P-core
   pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
 
