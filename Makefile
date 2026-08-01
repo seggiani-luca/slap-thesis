@@ -5,7 +5,7 @@ CC := clang
 CFLAGS := -O3
 
 # script per il plotting
-PLOT := python plot.py
+PLOT := python3 plot.py
 TRIES := 100
 
 # utility

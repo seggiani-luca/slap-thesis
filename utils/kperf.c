@@ -889,12 +889,16 @@ static kpep_event *get_event(kpep_db *db, const event_alias *alias) {
 
 #include "utils.h"
 
+// maximum number of events 
+#define MAX_EVENTS 100
+
 // static pmu state
 static struct {
   kpep_db *db;
   kpep_config *cfg;
   usize ev_count;
-  kpep_event *ev_arr[ev_count];
+  //kpep_event *ev_arr[ev_count];
+  kpep_event *ev_arr[MAX_EVENTS];
   u32 classes;
   usize reg_count;
   kpc_config_t regs[KPC_MAX_COUNTERS];
@@ -954,7 +958,7 @@ int beg_pmu() {
 
   // add event to config
   for (usize i = 0; i < pmu_state.ev_count; i++) {
-    kpep_event *ev = ev_arr[i];
+    kpep_event *ev = pmu_state.ev_arr[i];
     if ((ret = kpep_config_add_event(pmu_state.cfg, &ev, 0, NULL))) {
       printf("Failed to add event: %d (%s).\n", ret,
              kpep_config_error_desc(ret));
