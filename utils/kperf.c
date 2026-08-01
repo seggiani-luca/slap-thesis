@@ -911,7 +911,7 @@ int beg_pmu() {
   int ret = 0;
 
   // reset state
-  memset(pmu_state, 0, sizeof(pmu_state)); 
+  memset(&pmu_state, 0, sizeof(pmu_state)); 
 
   // load dylib
   if (!lib_init()) {
