@@ -1,4 +1,3 @@
-#include "utils.h"
 #include <mach/mach_time.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -21,7 +20,7 @@
 #define S (STRIDE_BYTES / sizeof(int))
 
 // Numero di misure eseguite per ciascun valore di ITERS.
-#define TRIES 10000
+#define TRIES 100
 
 /**
  * Compara due numeri, restituendo il minore.
@@ -178,17 +177,9 @@ void measure(int ITERS, uint64_t *link_time, uint64_t *rand_time,
   // misura array casuale
   *rand_time = stride(array, ITERS);
 
-<<<<<<< HEAD
 	for(int i = 0; i < ITERS; i++) {
-		array[i*S] = ((rand() % (ITERS-1)) + 1) * S;
+		array[i * S] = ((rand() % (ITERS - 1)) + 1) * S;
 	}
-	
-=======
-  // inizializza array SA + RV con valori casuali multipli di S 
-  for (int i = 0; i < ITERS; i++) {
-    array[i * S] = ((rand() % (ITERS - 1)) + 1) * S;
-  }
->>>>>>> 7ce08b8f4b1464df3294cc2e5a8b727be8da9eda
 
   // misura array SA + RV
   *sarv_time = sarv(array, ITERS);
@@ -217,9 +208,9 @@ int compare(const void *a, const void *b) {
  * Esegue la serie di misure della latenza di accesso alla memoria.
  *
  * Per ciascun valore di ITERS vengono effettuate TRIES misure dei pattern
- * collegato e casuale. I tempi mediani ottenuti vengono stampati, formato CSV:
+ * collegato, casuale e sa+rv. I tempi mediani ottenuti vengono stampati, formato CSV:
  *
- *     ITERS, link_time, random_time
+ *     ITERS, link_median, random_median, sarv_median
  *
  * @return EXIT_SUCCESS.
  */
