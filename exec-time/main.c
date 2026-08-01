@@ -215,6 +215,6 @@ int main() {
 
     // stampa in formato CSV
     printf("Iterazioni, Striding, Casuale, SA + RV");
-    printf("%d, %lu, %lu, %lu\n", ITERS, link_time, rand_time, sarv_time);
+    printf("%d, %llu, %llu, %llu\n", ITERS, link_time, rand_time, sarv_time);
   }
 }
