@@ -274,15 +274,15 @@ static u64 (*kperf_tick_frequency)(void);
 
 /// Get lightweight PET mode (not in kperf.framework).
 static int kperf_lightweight_pet_get(u32 *enabled) {
-  if (!enabled)
-    return -1;
-  usize size = 4;
-  return sysctlbyname("kperf.lightweight_pet", enabled, &size, NULL, 0);
+    if (!enabled)
+        return -1;
+    usize size = 4;
+    return sysctlbyname("kperf.lightweight_pet", enabled, &size, NULL, 0);
 }
 
 /// Set lightweight PET mode (not in kperf.framework).
 static int kperf_lightweight_pet_set(u32 enabled) {
-  return sysctlbyname("kperf.lightweight_pet", NULL, NULL, &enabled, 4);
+    return sysctlbyname("kperf.lightweight_pet", NULL, NULL, &enabled, 4);
 }
 
 // -----------------------------------------------------------------------------
@@ -299,79 +299,80 @@ static int kperf_lightweight_pet_set(u32 enabled) {
 
 /// KPEP event (size: 48/28 bytes on 64/32 bit OS)
 typedef struct kpep_event {
-  const char *name; ///< Unique name of a event, such as "INST_RETIRED.ANY".
-  const char *description; ///< Description for this event.
-  const char *errata;      ///< Errata, currently NULL.
-  const char *alias;       ///< Alias name, such as "Instructions", "Cycles".
-  const char *fallback;    ///< Fallback event name for fixed counter.
-  u32 mask;
-  u8 number;
-  u8 umask;
-  u8 reserved;
-  u8 is_fixed;
+    const char *name; ///< Unique name of a event, such as "INST_RETIRED.ANY".
+    const char *description; ///< Description for this event.
+    const char *errata;      ///< Errata, currently NULL.
+    const char *alias;       ///< Alias name, such as "Instructions", "Cycles".
+    const char *fallback;    ///< Fallback event name for fixed counter.
+    u32 mask;
+    u8 number;
+    u8 umask;
+    u8 reserved;
+    u8 is_fixed;
 } kpep_event;
 
 /// KPEP database (size: 144/80 bytes on 64/32 bit OS)
 typedef struct kpep_db {
-  const char *name;           ///< Database name, such as "haswell".
-  const char *cpu_id;         ///< Plist name, such as "cpu_7_8_10b282dc".
-  const char *marketing_name; ///< Marketing name, such as "Intel Haswell".
-  void *plist_data;           ///< Plist data (CFDataRef), currently NULL.
-  void *event_map; ///< All events (CFDict<CFSTR(event_name), kpep_event *>).
-  kpep_event
-      *event_arr; ///< Event struct buffer (sizeof(kpep_event) * events_count).
-  kpep_event **fixed_event_arr; ///< Fixed counter events (sizeof(kpep_event *)
-                                ///< * fixed_counter_count)
-  void *alias_map; ///< All aliases (CFDict<CFSTR(event_name), kpep_event *>).
-  usize reserved_1;
-  usize reserved_2;
-  usize reserved_3;
-  usize event_count; ///< All events count.
-  usize alias_count;
-  usize fixed_counter_count;
-  usize config_counter_count;
-  usize power_counter_count;
-  u32 archtecture; ///< see `KPEP CPU archtecture constants` above.
-  u32 fixed_counter_bits;
-  u32 config_counter_bits;
-  u32 power_counter_bits;
+    const char *name;           ///< Database name, such as "haswell".
+    const char *cpu_id;         ///< Plist name, such as "cpu_7_8_10b282dc".
+    const char *marketing_name; ///< Marketing name, such as "Intel Haswell".
+    void *plist_data;           ///< Plist data (CFDataRef), currently NULL.
+    void *event_map; ///< All events (CFDict<CFSTR(event_name), kpep_event *>).
+    kpep_event *
+        event_arr; ///< Event struct buffer (sizeof(kpep_event) * events_count).
+    kpep_event *
+        *fixed_event_arr; ///< Fixed counter events (sizeof(kpep_event *)
+                          ///< * fixed_counter_count)
+    void *alias_map; ///< All aliases (CFDict<CFSTR(event_name), kpep_event *>).
+    usize reserved_1;
+    usize reserved_2;
+    usize reserved_3;
+    usize event_count; ///< All events count.
+    usize alias_count;
+    usize fixed_counter_count;
+    usize config_counter_count;
+    usize power_counter_count;
+    u32 archtecture; ///< see `KPEP CPU archtecture constants` above.
+    u32 fixed_counter_bits;
+    u32 config_counter_bits;
+    u32 power_counter_bits;
 } kpep_db;
 
 /// KPEP config (size: 80/44 bytes on 64/32 bit OS)
 typedef struct kpep_config {
-  kpep_db *db;
-  kpep_event **ev_arr; ///< (sizeof(kpep_event *) * counter_count), init NULL
-  usize *ev_map;       ///< (sizeof(usize *) * counter_count), init 0
-  usize *ev_idx;       ///< (sizeof(usize *) * counter_count), init -1
-  u32 *flags;          ///< (sizeof(u32 *) * counter_count), init 0
-  u64 *kpc_periods;    ///< (sizeof(u64 *) * counter_count), init 0
-  usize event_count;   /// kpep_config_events_count()
-  usize counter_count;
-  u32 classes; ///< See `class mask constants` above.
-  u32 config_counter;
-  u32 power_counter;
-  u32 reserved;
+    kpep_db *db;
+    kpep_event **ev_arr; ///< (sizeof(kpep_event *) * counter_count), init NULL
+    usize *ev_map;       ///< (sizeof(usize *) * counter_count), init 0
+    usize *ev_idx;       ///< (sizeof(usize *) * counter_count), init -1
+    u32 *flags;          ///< (sizeof(u32 *) * counter_count), init 0
+    u64 *kpc_periods;    ///< (sizeof(u64 *) * counter_count), init 0
+    usize event_count;   /// kpep_config_events_count()
+    usize counter_count;
+    u32 classes; ///< See `class mask constants` above.
+    u32 config_counter;
+    u32 power_counter;
+    u32 reserved;
 } kpep_config;
 
 /// Error code for kpep_config_xxx() and kpep_db_xxx() functions.
 typedef enum {
-  KPEP_CONFIG_ERROR_NONE = 0,
-  KPEP_CONFIG_ERROR_INVALID_ARGUMENT = 1,
-  KPEP_CONFIG_ERROR_OUT_OF_MEMORY = 2,
-  KPEP_CONFIG_ERROR_IO = 3,
-  KPEP_CONFIG_ERROR_BUFFER_TOO_SMALL = 4,
-  KPEP_CONFIG_ERROR_CUR_SYSTEM_UNKNOWN = 5,
-  KPEP_CONFIG_ERROR_DB_PATH_INVALID = 6,
-  KPEP_CONFIG_ERROR_DB_NOT_FOUND = 7,
-  KPEP_CONFIG_ERROR_DB_ARCH_UNSUPPORTED = 8,
-  KPEP_CONFIG_ERROR_DB_VERSION_UNSUPPORTED = 9,
-  KPEP_CONFIG_ERROR_DB_CORRUPT = 10,
-  KPEP_CONFIG_ERROR_EVENT_NOT_FOUND = 11,
-  KPEP_CONFIG_ERROR_CONFLICTING_EVENTS = 12,
-  KPEP_CONFIG_ERROR_COUNTERS_NOT_FORCED = 13,
-  KPEP_CONFIG_ERROR_EVENT_UNAVAILABLE = 14,
-  KPEP_CONFIG_ERROR_ERRNO = 15,
-  KPEP_CONFIG_ERROR_MAX
+    KPEP_CONFIG_ERROR_NONE = 0,
+    KPEP_CONFIG_ERROR_INVALID_ARGUMENT = 1,
+    KPEP_CONFIG_ERROR_OUT_OF_MEMORY = 2,
+    KPEP_CONFIG_ERROR_IO = 3,
+    KPEP_CONFIG_ERROR_BUFFER_TOO_SMALL = 4,
+    KPEP_CONFIG_ERROR_CUR_SYSTEM_UNKNOWN = 5,
+    KPEP_CONFIG_ERROR_DB_PATH_INVALID = 6,
+    KPEP_CONFIG_ERROR_DB_NOT_FOUND = 7,
+    KPEP_CONFIG_ERROR_DB_ARCH_UNSUPPORTED = 8,
+    KPEP_CONFIG_ERROR_DB_VERSION_UNSUPPORTED = 9,
+    KPEP_CONFIG_ERROR_DB_CORRUPT = 10,
+    KPEP_CONFIG_ERROR_EVENT_NOT_FOUND = 11,
+    KPEP_CONFIG_ERROR_CONFLICTING_EVENTS = 12,
+    KPEP_CONFIG_ERROR_COUNTERS_NOT_FORCED = 13,
+    KPEP_CONFIG_ERROR_EVENT_UNAVAILABLE = 14,
+    KPEP_CONFIG_ERROR_ERRNO = 15,
+    KPEP_CONFIG_ERROR_MAX
 } kpep_config_error_code;
 
 /// Error description for kpep_config_error_code.
@@ -395,10 +396,10 @@ static const char *kpep_config_error_names[KPEP_CONFIG_ERROR_MAX] = {
 
 /// Error description.
 static const char *kpep_config_error_desc(int code) {
-  if (0 <= code && code < KPEP_CONFIG_ERROR_MAX) {
-    return kpep_config_error_names[code];
-  }
-  return "unknown error";
+    if (0 <= code && code < KPEP_CONFIG_ERROR_MAX) {
+        return kpep_config_error_names[code];
+    }
+    return "unknown error";
 }
 
 /// Create a config.
@@ -526,8 +527,8 @@ static int (*kpep_event_description)(kpep_event *ev, const char **str_ptr);
 // -----------------------------------------------------------------------------
 
 typedef struct {
-  const char *name;
-  void **impl;
+    const char *name;
+    void **impl;
 } lib_symbol;
 
 #define lib_nelems(x) (sizeof(x) / sizeof((x)[0]))
@@ -598,7 +599,7 @@ static const lib_symbol lib_symbols_kperfdata[] = {
 
 #define lib_path_kperf "/System/Library/PrivateFrameworks/kperf.framework/kperf"
 #define lib_path_kperfdata                                                     \
-  "/System/Library/PrivateFrameworks/kperfdata.framework/kperfdata"
+    "/System/Library/PrivateFrameworks/kperfdata.framework/kperfdata"
 
 static bool lib_inited = false;
 static bool lib_has_err = false;
@@ -608,73 +609,73 @@ static void *lib_handle_kperf = NULL;
 static void *lib_handle_kperfdata = NULL;
 
 static void lib_deinit(void) {
-  lib_inited = false;
-  lib_has_err = false;
-  if (lib_handle_kperf)
-    dlclose(lib_handle_kperf);
-  if (lib_handle_kperfdata)
-    dlclose(lib_handle_kperfdata);
-  lib_handle_kperf = NULL;
-  lib_handle_kperfdata = NULL;
-  for (usize i = 0; i < lib_nelems(lib_symbols_kperf); i++) {
-    const lib_symbol *symbol = &lib_symbols_kperf[i];
-    *symbol->impl = NULL;
-  }
-  for (usize i = 0; i < lib_nelems(lib_symbols_kperfdata); i++) {
-    const lib_symbol *symbol = &lib_symbols_kperfdata[i];
-    *symbol->impl = NULL;
-  }
+    lib_inited = false;
+    lib_has_err = false;
+    if (lib_handle_kperf)
+        dlclose(lib_handle_kperf);
+    if (lib_handle_kperfdata)
+        dlclose(lib_handle_kperfdata);
+    lib_handle_kperf = NULL;
+    lib_handle_kperfdata = NULL;
+    for (usize i = 0; i < lib_nelems(lib_symbols_kperf); i++) {
+        const lib_symbol *symbol = &lib_symbols_kperf[i];
+        *symbol->impl = NULL;
+    }
+    for (usize i = 0; i < lib_nelems(lib_symbols_kperfdata); i++) {
+        const lib_symbol *symbol = &lib_symbols_kperfdata[i];
+        *symbol->impl = NULL;
+    }
 }
 
 static bool lib_init(void) {
 #define return_err()                                                           \
-  do {                                                                         \
-    lib_deinit();                                                              \
-    lib_inited = true;                                                         \
-    lib_has_err = true;                                                        \
-    return false;                                                              \
-  } while (false)
+    do {                                                                       \
+        lib_deinit();                                                          \
+        lib_inited = true;                                                     \
+        lib_has_err = true;                                                    \
+        return false;                                                          \
+    } while (false)
 
-  if (lib_inited)
-    return !lib_has_err;
+    if (lib_inited)
+        return !lib_has_err;
 
-  // load dynamic library
-  lib_handle_kperf = dlopen(lib_path_kperf, RTLD_LAZY);
-  if (!lib_handle_kperf) {
-    snprintf(lib_err_msg, sizeof(lib_err_msg),
-             "Failed to load kperf.framework, message: %s.", dlerror());
-    return_err();
-  }
-  lib_handle_kperfdata = dlopen(lib_path_kperfdata, RTLD_LAZY);
-  if (!lib_handle_kperfdata) {
-    snprintf(lib_err_msg, sizeof(lib_err_msg),
-             "Failed to load kperfdata.framework, message: %s.", dlerror());
-    return_err();
-  }
-
-  // load symbol address from dynamic library
-  for (usize i = 0; i < lib_nelems(lib_symbols_kperf); i++) {
-    const lib_symbol *symbol = &lib_symbols_kperf[i];
-    *symbol->impl = dlsym(lib_handle_kperf, symbol->name);
-    if (!*symbol->impl) {
-      snprintf(lib_err_msg, sizeof(lib_err_msg),
-               "Failed to load kperf function: %s.", symbol->name);
-      return_err();
+    // load dynamic library
+    lib_handle_kperf = dlopen(lib_path_kperf, RTLD_LAZY);
+    if (!lib_handle_kperf) {
+        snprintf(lib_err_msg, sizeof(lib_err_msg),
+                 "Failed to load kperf.framework, message: %s.", dlerror());
+        return_err();
     }
-  }
-  for (usize i = 0; i < lib_nelems(lib_symbols_kperfdata); i++) {
-    const lib_symbol *symbol = &lib_symbols_kperfdata[i];
-    *symbol->impl = dlsym(lib_handle_kperfdata, symbol->name);
-    if (!*symbol->impl) {
-      snprintf(lib_err_msg, sizeof(lib_err_msg),
-               "Failed to load kperfdata function: %s.", symbol->name);
-      return_err();
+    lib_handle_kperfdata = dlopen(lib_path_kperfdata, RTLD_LAZY);
+    if (!lib_handle_kperfdata) {
+        snprintf(lib_err_msg, sizeof(lib_err_msg),
+                 "Failed to load kperfdata.framework, message: %s.", dlerror());
+        return_err();
     }
-  }
 
-  lib_inited = true;
-  lib_has_err = false;
-  return true;
+    // load symbol address from dynamic library
+    for (usize i = 0; i < lib_nelems(lib_symbols_kperf); i++) {
+        const lib_symbol *symbol = &lib_symbols_kperf[i];
+        *symbol->impl = dlsym(lib_handle_kperf, symbol->name);
+        if (!*symbol->impl) {
+            snprintf(lib_err_msg, sizeof(lib_err_msg),
+                     "Failed to load kperf function: %s.", symbol->name);
+            return_err();
+        }
+    }
+    for (usize i = 0; i < lib_nelems(lib_symbols_kperfdata); i++) {
+        const lib_symbol *symbol = &lib_symbols_kperfdata[i];
+        *symbol->impl = dlsym(lib_handle_kperfdata, symbol->name);
+        if (!*symbol->impl) {
+            snprintf(lib_err_msg, sizeof(lib_err_msg),
+                     "Failed to load kperfdata function: %s.", symbol->name);
+            return_err();
+        }
+    }
+
+    lib_inited = true;
+    lib_has_err = false;
+    return true;
 
 #undef return_err
 }
@@ -695,21 +696,21 @@ typedef uintptr_t kd_buf_argtype;
 #endif
 
 typedef struct {
-  uint64_t timestamp;
-  kd_buf_argtype arg1;
-  kd_buf_argtype arg2;
-  kd_buf_argtype arg3;
-  kd_buf_argtype arg4;
-  kd_buf_argtype arg5; /* the thread ID */
-  uint32_t debugid;    /* see <sys/kdebug.h> */
+    uint64_t timestamp;
+    kd_buf_argtype arg1;
+    kd_buf_argtype arg2;
+    kd_buf_argtype arg3;
+    kd_buf_argtype arg4;
+    kd_buf_argtype arg5; /* the thread ID */
+    uint32_t debugid;    /* see <sys/kdebug.h> */
 
 /*
  * Ensure that both LP32 and LP64 variants of arm64 use the same kd_buf
  * structure.
  */
 #if defined(__LP64__) || defined(__arm64__)
-  uint32_t cpuid; /* cpu index, from 0 */
-  kd_buf_argtype unused;
+    uint32_t cpuid; /* cpu index, from 0 */
+    kd_buf_argtype unused;
 #endif
 } kd_buf;
 
@@ -724,24 +725,24 @@ typedef struct {
 #define KDBG_VALCHECK 0x00200000U
 
 typedef struct {
-  unsigned int type;
-  unsigned int value1;
-  unsigned int value2;
-  unsigned int value3;
-  unsigned int value4;
+    unsigned int type;
+    unsigned int value1;
+    unsigned int value2;
+    unsigned int value3;
+    unsigned int value4;
 } kd_regtype;
 
 typedef struct {
-  /* number of events that can fit in the buffers */
-  int nkdbufs;
-  /* set if trace is disabled */
-  int nolog;
-  /* kd_ctrl_page.flags */
-  unsigned int flags;
-  /* number of threads in thread map */
-  int nkdthreads;
-  /* the owning pid */
-  int bufid;
+    /* number of events that can fit in the buffers */
+    int nkdbufs;
+    /* set if trace is disabled */
+    int nolog;
+    /* kd_ctrl_page.flags */
+    unsigned int flags;
+    /* number of threads in thread map */
+    int nkdthreads;
+    /* the owning pid */
+    int bufid;
 } kbufinfo_t;
 
 // -----------------------------------------------------------------------------
@@ -751,48 +752,48 @@ typedef struct {
 /// Clean up trace buffers and reset ktrace/kdebug/kperf.
 /// @return 0 on success.
 static int kdebug_reset(void) {
-  int mib[3] = {CTL_KERN, KERN_KDEBUG, KERN_KDREMOVE};
-  return sysctl(mib, 3, NULL, NULL, NULL, 0);
+    int mib[3] = {CTL_KERN, KERN_KDEBUG, KERN_KDREMOVE};
+    return sysctl(mib, 3, NULL, NULL, NULL, 0);
 }
 
 /// Disable and reinitialize the trace buffers.
 /// @return 0 on success.
 static int kdebug_reinit(void) {
-  int mib[3] = {CTL_KERN, KERN_KDEBUG, KERN_KDSETUP};
-  return sysctl(mib, 3, NULL, NULL, NULL, 0);
+    int mib[3] = {CTL_KERN, KERN_KDEBUG, KERN_KDSETUP};
+    return sysctl(mib, 3, NULL, NULL, NULL, 0);
 }
 
 /// Set debug filter.
 static int kdebug_setreg(kd_regtype *kdr) {
-  int mib[3] = {CTL_KERN, KERN_KDEBUG, KERN_KDSETREG};
-  usize size = sizeof(kd_regtype);
-  return sysctl(mib, 3, kdr, &size, NULL, 0);
+    int mib[3] = {CTL_KERN, KERN_KDEBUG, KERN_KDSETREG};
+    usize size = sizeof(kd_regtype);
+    return sysctl(mib, 3, kdr, &size, NULL, 0);
 }
 
 /// Set maximum number of trace entries (kd_buf).
 /// Only allow allocation up to half the available memory (sane_size).
 /// @return 0 on success.
 static int kdebug_trace_setbuf(int nbufs) {
-  int mib[4] = {CTL_KERN, KERN_KDEBUG, KERN_KDSETBUF, nbufs};
-  return sysctl(mib, 4, NULL, NULL, NULL, 0);
+    int mib[4] = {CTL_KERN, KERN_KDEBUG, KERN_KDSETBUF, nbufs};
+    return sysctl(mib, 4, NULL, NULL, NULL, 0);
 }
 
 /// Enable or disable kdebug trace.
 /// Trace buffer must already be initialized.
 /// @return 0 on success.
 static int kdebug_trace_enable(bool enable) {
-  int mib[4] = {CTL_KERN, KERN_KDEBUG, KERN_KDENABLE, enable};
-  return sysctl(mib, 4, NULL, 0, NULL, 0);
+    int mib[4] = {CTL_KERN, KERN_KDEBUG, KERN_KDENABLE, enable};
+    return sysctl(mib, 4, NULL, 0, NULL, 0);
 }
 
 /// Retrieve trace buffer information from kernel.
 /// @return 0 on success.
 static int kdebug_get_bufinfo(kbufinfo_t *info) {
-  if (!info)
-    return -1;
-  int mib[3] = {CTL_KERN, KERN_KDEBUG, KERN_KDGETBUF};
-  size_t needed = sizeof(kbufinfo_t);
-  return sysctl(mib, 3, info, &needed, NULL, 0);
+    if (!info)
+        return -1;
+    int mib[3] = {CTL_KERN, KERN_KDEBUG, KERN_KDGETBUF};
+    size_t needed = sizeof(kbufinfo_t);
+    return sysctl(mib, 3, info, &needed, NULL, 0);
 }
 
 /// Retrieve trace buffers from kernel.
@@ -801,20 +802,20 @@ static int kdebug_get_bufinfo(kbufinfo_t *info) {
 /// @param count Number of trace entries (kd_buf) obtained.
 /// @return 0 on success.
 static int kdebug_trace_read(void *buf, usize len, usize *count) {
-  if (count)
-    *count = 0;
-  if (!buf || !len)
-    return -1;
+    if (count)
+        *count = 0;
+    if (!buf || !len)
+        return -1;
 
-  // Note: the input and output units are not the same.
-  // input: bytes
-  // output: number of kd_buf
-  int mib[3] = {CTL_KERN, KERN_KDEBUG, KERN_KDREADTR};
-  int ret = sysctl(mib, 3, buf, &len, NULL, 0);
-  if (ret != 0)
-    return ret;
-  *count = len;
-  return 0;
+    // Note: the input and output units are not the same.
+    // input: bytes
+    // output: number of kd_buf
+    int mib[3] = {CTL_KERN, KERN_KDEBUG, KERN_KDREADTR};
+    int ret = sysctl(mib, 3, buf, &len, NULL, 0);
+    if (ret != 0)
+        return ret;
+    *count = len;
+    return 0;
 }
 
 /// Block until there are new buffers filled or `timeout_ms` have passed.
@@ -822,14 +823,14 @@ static int kdebug_trace_read(void *buf, usize len, usize *count) {
 /// @param suc set true if new buffers filled.
 /// @return 0 on success.
 static int kdebug_wait(usize timeout_ms, bool *suc) {
-  if (timeout_ms == 0)
-    return -1;
-  int mib[3] = {CTL_KERN, KERN_KDEBUG, KERN_KDBUFWAIT};
-  usize val = timeout_ms;
-  int ret = sysctl(mib, 3, NULL, &val, NULL, 0);
-  if (suc)
-    *suc = !!val;
-  return ret;
+    if (timeout_ms == 0)
+        return -1;
+    int mib[3] = {CTL_KERN, KERN_KDEBUG, KERN_KDBUFWAIT};
+    usize val = timeout_ms;
+    int ret = sysctl(mib, 3, NULL, &val, NULL, 0);
+    if (suc)
+        *suc = !!val;
+    return ret;
 }
 
 // -----------------------------------------------------------------------------
@@ -838,8 +839,8 @@ static int kdebug_wait(usize timeout_ms, bool *suc) {
 
 #define EVENT_NAME_MAX 8
 typedef struct {
-  const char *alias;                 /// name for print
-  const char *names[EVENT_NAME_MAX]; /// name from pmc db
+    const char *alias;                 /// name for print
+    const char *names[EVENT_NAME_MAX]; /// name from pmc db
 } event_alias;
 
 /// Event names from /usr/share/kpep/<name>.plist
@@ -871,16 +872,16 @@ static const event_alias profile_events[] = {
 };
 
 static kpep_event *get_event(kpep_db *db, const event_alias *alias) {
-  for (usize j = 0; j < EVENT_NAME_MAX; j++) {
-    const char *name = alias->names[j];
-    if (!name)
-      break;
-    kpep_event *ev = NULL;
-    if (kpep_db_event(db, name, &ev) == 0) {
-      return ev;
+    for (usize j = 0; j < EVENT_NAME_MAX; j++) {
+        const char *name = alias->names[j];
+        if (!name)
+            break;
+        kpep_event *ev = NULL;
+        if (kpep_db_event(db, name, &ev) == 0) {
+            return ev;
+        }
     }
-  }
-  return NULL;
+    return NULL;
 }
 
 // -----------------------------------------------------------------------------
@@ -894,179 +895,180 @@ static kpep_event *get_event(kpep_db *db, const event_alias *alias) {
 
 // static pmu state
 static struct {
-  kpep_db *db;
-  kpep_config *cfg;
-  usize ev_count;
-  // kpep_event *ev_arr[ev_count];
-  kpep_event *ev_arr[MAX_EVENTS];
-  u32 classes;
-  usize reg_count;
-  kpc_config_t regs[KPC_MAX_COUNTERS];
-  usize counter_map[KPC_MAX_COUNTERS];
-  u64 counters_0[KPC_MAX_COUNTERS];
-  u64 counters_1[KPC_MAX_COUNTERS];
+    kpep_db *db;
+    kpep_config *cfg;
+    usize ev_count;
+    // kpep_event *ev_arr[ev_count];
+    kpep_event *ev_arr[MAX_EVENTS];
+    u32 classes;
+    usize reg_count;
+    kpc_config_t regs[KPC_MAX_COUNTERS];
+    usize counter_map[KPC_MAX_COUNTERS];
+    u64 counters_0[KPC_MAX_COUNTERS];
+    u64 counters_1[KPC_MAX_COUNTERS];
 } pmu_state;
 
 void beg_pmu() {
-  int ret = 0;
+    int ret = 0;
 
-  // reset state
-  memset(&pmu_state, 0, sizeof(pmu_state));
+    // reset state
+    memset(&pmu_state, 0, sizeof(pmu_state));
 
-  // load dylib
-  if (!lib_init()) {
-    printf("Error: %s\n", lib_err_msg);
-    exit(0);
-    return;
-  }
-
-  // check permission
-  int force_ctrs = 0;
-  if (kpc_force_all_ctrs_get(&force_ctrs)) {
-    printf("Permission denied, xnu/kpc requires root privileges.\n");
-    exit(0);
-    return;
-  }
-
-  // load pmc db
-  if ((ret = kpep_db_create(NULL, &pmu_state.db))) {
-    printf("Error: cannot load pmc database: %d.\n", ret);
-    exit(0);
-    return;
-  }
-
-  // create a config
-  if ((ret = kpep_config_create(pmu_state.db, &pmu_state.cfg))) {
-    printf("Failed to create kpep config: %d (%s).\n", ret,
-           kpep_config_error_desc(ret));
-    exit(0);
-    return;
-  }
-  if ((ret = kpep_config_force_counters(pmu_state.cfg))) {
-    printf("Failed to force counters: %d (%s).\n", ret,
-           kpep_config_error_desc(ret));
-    exit(0);
-    return;
-  }
-
-  // get events
-  pmu_state.ev_count = sizeof(profile_events) / sizeof(profile_events[0]);
-  for (usize i = 0; i < pmu_state.ev_count; i++) {
-    const event_alias *alias = profile_events + i;
-    pmu_state.ev_arr[i] = get_event(pmu_state.db, alias);
-    if (!pmu_state.ev_arr[i]) {
-      printf("Cannot find event: %s.\n", alias->alias);
-      exit(0);
-      return;
+    // load dylib
+    if (!lib_init()) {
+        printf("Error: %s\n", lib_err_msg);
+        exit(0);
+        return;
     }
-  }
 
-  // add event to config
-  for (usize i = 0; i < pmu_state.ev_count; i++) {
-    kpep_event *ev = pmu_state.ev_arr[i];
-    if ((ret = kpep_config_add_event(pmu_state.cfg, &ev, 0, NULL))) {
-      printf("Failed to add event: %d (%s).\n", ret,
-             kpep_config_error_desc(ret));
-      exit(0);
-      return;
+    // check permission
+    int force_ctrs = 0;
+    if (kpc_force_all_ctrs_get(&force_ctrs)) {
+        printf("Permission denied, xnu/kpc requires root privileges.\n");
+        exit(0);
+        return;
     }
-  }
 
-  // prepare buffer and config
-  if ((ret = kpep_config_kpc_classes(pmu_state.cfg, &pmu_state.classes))) {
-    printf("Failed get kpc classes: %d (%s).\n", ret,
-           kpep_config_error_desc(ret));
-    exit(0);
-    return;
-  }
-  if ((ret = kpep_config_kpc_count(pmu_state.cfg, &pmu_state.reg_count))) {
-    printf("Failed get kpc count: %d (%s).\n", ret,
-           kpep_config_error_desc(ret));
-    exit(0);
-    return;
-  }
-  if ((ret = kpep_config_kpc_map(pmu_state.cfg, pmu_state.counter_map,
-                                 sizeof(pmu_state.counter_map)))) {
-    printf("Failed get kpc map: %d (%s).\n", ret, kpep_config_error_desc(ret));
-    exit(0);
-    return;
-  }
-  if ((ret = kpep_config_kpc(pmu_state.cfg, pmu_state.regs,
-                             sizeof(pmu_state.regs)))) {
-    printf("Failed get kpc registers: %d (%s).\n", ret,
-           kpep_config_error_desc(ret));
-    exit(0);
-    return;
-  }
-
-  // set config to kernel
-  if ((ret = kpc_force_all_ctrs_set(1))) {
-    printf("Failed force all ctrs: %d.\n", ret);
-    exit(0);
-    return;
-  }
-  if ((pmu_state.classes & KPC_CLASS_CONFIGURABLE_MASK) &&
-      pmu_state.reg_count) {
-    if ((ret = kpc_set_config(pmu_state.classes, pmu_state.regs))) {
-      printf("Failed set kpc config: %d.\n", ret);
-      exit(0);
-      return;
+    // load pmc db
+    if ((ret = kpep_db_create(NULL, &pmu_state.db))) {
+        printf("Error: cannot load pmc database: %d.\n", ret);
+        exit(0);
+        return;
     }
-  }
 
-  // start counting
-  if ((ret = kpc_set_counting(pmu_state.classes))) {
-    printf("Failed set counting: %d.\n", ret);
-    exit(0);
-    return;
-  }
-  if ((ret = kpc_set_thread_counting(pmu_state.classes))) {
-    printf("Failed set thread counting: %d.\n", ret);
-    exit(0);
-    return;
-  }
+    // create a config
+    if ((ret = kpep_config_create(pmu_state.db, &pmu_state.cfg))) {
+        printf("Failed to create kpep config: %d (%s).\n", ret,
+               kpep_config_error_desc(ret));
+        exit(0);
+        return;
+    }
+    if ((ret = kpep_config_force_counters(pmu_state.cfg))) {
+        printf("Failed to force counters: %d (%s).\n", ret,
+               kpep_config_error_desc(ret));
+        exit(0);
+        return;
+    }
 
-  // get counters before
-  if ((ret = kpc_get_thread_counters(0, KPC_MAX_COUNTERS,
-                                     pmu_state.counters_0))) {
-    printf("Failed get thread counters before: %d.\n", ret);
-    exit(0);
-    return;
-  }
+    // get events
+    pmu_state.ev_count = sizeof(profile_events) / sizeof(profile_events[0]);
+    for (usize i = 0; i < pmu_state.ev_count; i++) {
+        const event_alias *alias = profile_events + i;
+        pmu_state.ev_arr[i] = get_event(pmu_state.db, alias);
+        if (!pmu_state.ev_arr[i]) {
+            printf("Cannot find event: %s.\n", alias->alias);
+            exit(0);
+            return;
+        }
+    }
+
+    // add event to config
+    for (usize i = 0; i < pmu_state.ev_count; i++) {
+        kpep_event *ev = pmu_state.ev_arr[i];
+        if ((ret = kpep_config_add_event(pmu_state.cfg, &ev, 0, NULL))) {
+            printf("Failed to add event: %d (%s).\n", ret,
+                   kpep_config_error_desc(ret));
+            exit(0);
+            return;
+        }
+    }
+
+    // prepare buffer and config
+    if ((ret = kpep_config_kpc_classes(pmu_state.cfg, &pmu_state.classes))) {
+        printf("Failed get kpc classes: %d (%s).\n", ret,
+               kpep_config_error_desc(ret));
+        exit(0);
+        return;
+    }
+    if ((ret = kpep_config_kpc_count(pmu_state.cfg, &pmu_state.reg_count))) {
+        printf("Failed get kpc count: %d (%s).\n", ret,
+               kpep_config_error_desc(ret));
+        exit(0);
+        return;
+    }
+    if ((ret = kpep_config_kpc_map(pmu_state.cfg, pmu_state.counter_map,
+                                   sizeof(pmu_state.counter_map)))) {
+        printf("Failed get kpc map: %d (%s).\n", ret,
+               kpep_config_error_desc(ret));
+        exit(0);
+        return;
+    }
+    if ((ret = kpep_config_kpc(pmu_state.cfg, pmu_state.regs,
+                               sizeof(pmu_state.regs)))) {
+        printf("Failed get kpc registers: %d (%s).\n", ret,
+               kpep_config_error_desc(ret));
+        exit(0);
+        return;
+    }
+
+    // set config to kernel
+    if ((ret = kpc_force_all_ctrs_set(1))) {
+        printf("Failed force all ctrs: %d.\n", ret);
+        exit(0);
+        return;
+    }
+    if ((pmu_state.classes & KPC_CLASS_CONFIGURABLE_MASK) &&
+        pmu_state.reg_count) {
+        if ((ret = kpc_set_config(pmu_state.classes, pmu_state.regs))) {
+            printf("Failed set kpc config: %d.\n", ret);
+            exit(0);
+            return;
+        }
+    }
+
+    // start counting
+    if ((ret = kpc_set_counting(pmu_state.classes))) {
+        printf("Failed set counting: %d.\n", ret);
+        exit(0);
+        return;
+    }
+    if ((ret = kpc_set_thread_counting(pmu_state.classes))) {
+        printf("Failed set thread counting: %d.\n", ret);
+        exit(0);
+        return;
+    }
+
+    // get counters before
+    if ((ret = kpc_get_thread_counters(0, KPC_MAX_COUNTERS,
+                                       pmu_state.counters_0))) {
+        printf("Failed get thread counters before: %d.\n", ret);
+        exit(0);
+        return;
+    }
 }
 
 uint64_t end_pmu() {
-  int ret = 0;
+    int ret = 0;
 
-  // get counters after
-  if ((ret = kpc_get_thread_counters(0, KPC_MAX_COUNTERS,
-                                     pmu_state.counters_1))) {
-    printf("Failed get thread counters after: %d.\n", ret);
-    exit(0);
-    return;
-  }
+    // get counters after
+    if ((ret = kpc_get_thread_counters(0, KPC_MAX_COUNTERS,
+                                       pmu_state.counters_1))) {
+        printf("Failed get thread counters after: %d.\n", ret);
+        exit(0);
+        return;
+    }
 
-  // stop counting
-  kpc_set_counting(0);
-  kpc_set_thread_counting(0);
-  kpc_force_all_ctrs_set(0);
+    // stop counting
+    kpc_set_counting(0);
+    kpc_set_thread_counting(0);
+    kpc_force_all_ctrs_set(0);
 
-  // result
-  for (usize i = 0; i < pmu_state.ev_count; i++) {
-    // for now only get cycles
-    if (i != 0)
-      continue;
+    // result
+    for (usize i = 0; i < pmu_state.ev_count; i++) {
+        // for now only get cycles
+        if (i != 0)
+            continue;
 
-    const event_alias *alias = profile_events + i;
-    usize idx = pmu_state.counter_map[i];
-    u64 val = pmu_state.counters_1[idx] - pmu_state.counters_0[idx];
+        const event_alias *alias = profile_events + i;
+        usize idx = pmu_state.counter_map[i];
+        u64 val = pmu_state.counters_1[idx] - pmu_state.counters_0[idx];
 
-    *cycles = val;
-  }
+        *cycles = val;
+    }
 
-  // free data
-  kpep_db_free(pmu_state.db);
-  kpep_config_free(pmu_state.cfg);
+    // free data
+    kpep_db_free(pmu_state.db);
+    kpep_config_free(pmu_state.cfg);
 
-  return cycles;
+    return cycles;
 }
