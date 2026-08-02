@@ -2,7 +2,7 @@
 
 # compilatore e flags
 CC := clang
-CFLAGS := -O0 -mcpu=apple-m2 #-g
+CFLAGS := -O3 -mcpu=apple-m2 #-g
 LFLAGS := -ldl
 
 # script per il plotting
@@ -25,3 +25,9 @@ plot-%:
 format:
 	@echo "Formatting sources..."
 	@find . \( -name '*.c' -o -name '*.h' \) -exec clang-format -i {} \;
+
+run:
+	for ((i = 10; i <= 1000; i += 10)); do \
+		sudo ./exec-time/main.o $$i; \
+	done > data.csv
+	python3 plot.py

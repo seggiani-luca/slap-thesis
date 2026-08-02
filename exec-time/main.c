@@ -47,7 +47,8 @@ double median(uint64_t arr[], int n) {
 
 int rand_range(int min, int max) { return min + rand() % (max - min); }
 
-inline __attribute__((always_inline)) int min(int a, int b) { return (a < b) ? a : b; }
+//inline __attribute__((always_inline)) 
+int min(int a, int b) { return (a < b) ? a : b; }
 
 uint64_t get_time() {
     // ottieni info da mach
@@ -62,21 +63,21 @@ uint64_t get_time() {
     return t * info.numer / info.denom;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     // imposta affinità CPU attraverso pthread_set_qos_class_self_np (in quanto
     // non abbiamo a disposizione KDK)
     pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
 
     // imposta seed casuale
     srand((unsigned int)time(NULL));
-
+    const int ITERS = atoi(argv[1]);
     // stampa header del CSV
-    printf("%s, %s, %s, %s\n", "Iterazioni", "Loop Random Addr + Random Value",
-           "Loop Striding Addr + Striding Value",
-           "Loop Striding Addr + Random Value");
+    //printf("%s, %s, %s, %s\n", "Iterazioni", "Loop Random Addr + Random Value",
+    //       "Loop Striding Addr + Striding Value",
+    //       "Loop Striding Addr + Random Value");
 
     // esegui iterazioni da MIN_ITERS a MAX_ITERS, passo ITERS_STEP
-    for (int ITERS = MIN_ITERS; ITERS <= MAX_ITERS; ITERS += ITERS_STEP) {
+    //for (int ITERS = MIN_ITERS; ITERS <= MAX_ITERS; ITERS += ITERS_STEP) {
         // stampa iterazione corrente
         printf("%d, ", ITERS);
 
@@ -205,5 +206,5 @@ int main() {
             printf("Failed to deallocate buffer pages\n");
             return EXIT_FAILURE;
         }
-    }
+    //}
 }

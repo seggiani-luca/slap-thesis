@@ -2,7 +2,8 @@
 #include <mach/mach_time.h>
 #include <stdlib.h>
 
-inline __attribute__((always_inline)) uint64_t get_time() {
+//inline __attribute__((always_inline)) 
+uint64_t get_time() {
     // ottieni info da mach
     static mach_timebase_info_data_t info = {0};
     if (info.denom == 0)
