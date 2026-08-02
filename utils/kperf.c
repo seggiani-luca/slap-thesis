@@ -889,7 +889,7 @@ static kpep_event *get_event(kpep_db *db, const event_alias *alias) {
 
 #include "utils.h"
 
-// maximum number of events 
+// maximum number of events
 #define MAX_EVENTS 100
 
 // static pmu state
@@ -897,7 +897,7 @@ static struct {
   kpep_db *db;
   kpep_config *cfg;
   usize ev_count;
-  //kpep_event *ev_arr[ev_count];
+  // kpep_event *ev_arr[ev_count];
   kpep_event *ev_arr[MAX_EVENTS];
   u32 classes;
   usize reg_count;
@@ -907,45 +907,46 @@ static struct {
   u64 counters_1[KPC_MAX_COUNTERS];
 } pmu_state;
 
-int beg_pmu() {
+void beg_pmu() {
   int ret = 0;
 
   // reset state
-  memset(&pmu_state, 0, sizeof(pmu_state)); 
+  memset(&pmu_state, 0, sizeof(pmu_state));
 
   // load dylib
   if (!lib_init()) {
     printf("Error: %s\n", lib_err_msg);
-    return 1;
+    exit(0);
+    return;
   }
 
   // check permission
   int force_ctrs = 0;
   if (kpc_force_all_ctrs_get(&force_ctrs)) {
     printf("Permission denied, xnu/kpc requires root privileges.\n");
-    return 1;
+    exit(0);
+    return;
   }
 
   // load pmc db
   if ((ret = kpep_db_create(NULL, &pmu_state.db))) {
     printf("Error: cannot load pmc database: %d.\n", ret);
-    return 1;
+    exit(0);
+    return;
   }
-  // printf("loaded db: %s (%s)\n", pmu_state.db->name,
-  // pmu_state.db->marketing_name); printf("number of fixed counters: %zu\n",
-  // pmu_state.db->fixed_counter_count); printf("number of configurable
-  // counters: %zu\n", pmu_state.db->config_counter_count);
 
   // create a config
   if ((ret = kpep_config_create(pmu_state.db, &pmu_state.cfg))) {
     printf("Failed to create kpep config: %d (%s).\n", ret,
            kpep_config_error_desc(ret));
-    return 1;
+    exit(0);
+    return;
   }
   if ((ret = kpep_config_force_counters(pmu_state.cfg))) {
     printf("Failed to force counters: %d (%s).\n", ret,
            kpep_config_error_desc(ret));
-    return 1;
+    exit(0);
+    return;
   }
 
   // get events
@@ -955,7 +956,8 @@ int beg_pmu() {
     pmu_state.ev_arr[i] = get_event(pmu_state.db, alias);
     if (!pmu_state.ev_arr[i]) {
       printf("Cannot find event: %s.\n", alias->alias);
-      return 1;
+      exit(0);
+      return;
     }
   }
 
@@ -965,7 +967,8 @@ int beg_pmu() {
     if ((ret = kpep_config_add_event(pmu_state.cfg, &ev, 0, NULL))) {
       printf("Failed to add event: %d (%s).\n", ret,
              kpep_config_error_desc(ret));
-      return 1;
+      exit(0);
+      return;
     }
   }
 
@@ -973,66 +976,74 @@ int beg_pmu() {
   if ((ret = kpep_config_kpc_classes(pmu_state.cfg, &pmu_state.classes))) {
     printf("Failed get kpc classes: %d (%s).\n", ret,
            kpep_config_error_desc(ret));
-    return 1;
+    exit(0);
+    return;
   }
   if ((ret = kpep_config_kpc_count(pmu_state.cfg, &pmu_state.reg_count))) {
     printf("Failed get kpc count: %d (%s).\n", ret,
            kpep_config_error_desc(ret));
-    return 1;
+    exit(0);
+    return;
   }
   if ((ret = kpep_config_kpc_map(pmu_state.cfg, pmu_state.counter_map,
                                  sizeof(pmu_state.counter_map)))) {
     printf("Failed get kpc map: %d (%s).\n", ret, kpep_config_error_desc(ret));
-    return 1;
+    exit(0);
+    return;
   }
   if ((ret = kpep_config_kpc(pmu_state.cfg, pmu_state.regs,
                              sizeof(pmu_state.regs)))) {
     printf("Failed get kpc registers: %d (%s).\n", ret,
            kpep_config_error_desc(ret));
-    return 1;
+    exit(0);
+    return;
   }
 
   // set config to kernel
   if ((ret = kpc_force_all_ctrs_set(1))) {
     printf("Failed force all ctrs: %d.\n", ret);
-    return 1;
+    exit(0);
+    return;
   }
   if ((pmu_state.classes & KPC_CLASS_CONFIGURABLE_MASK) &&
       pmu_state.reg_count) {
     if ((ret = kpc_set_config(pmu_state.classes, pmu_state.regs))) {
       printf("Failed set kpc config: %d.\n", ret);
-      return 1;
+      exit(0);
+      return;
     }
   }
 
   // start counting
   if ((ret = kpc_set_counting(pmu_state.classes))) {
     printf("Failed set counting: %d.\n", ret);
-    return 1;
+    exit(0);
+    return;
   }
   if ((ret = kpc_set_thread_counting(pmu_state.classes))) {
     printf("Failed set thread counting: %d.\n", ret);
-    return 1;
+    exit(0);
+    return;
   }
 
   // get counters before
   if ((ret = kpc_get_thread_counters(0, KPC_MAX_COUNTERS,
                                      pmu_state.counters_0))) {
     printf("Failed get thread counters before: %d.\n", ret);
-    return 1;
+    exit(0);
+    return;
   }
-
-  return 0;
 }
 
-int end_pmu(uint64_t *cycles) {
+uint64_t end_pmu() {
   int ret = 0;
 
   // get counters after
   if ((ret = kpc_get_thread_counters(0, KPC_MAX_COUNTERS,
                                      pmu_state.counters_1))) {
     printf("Failed get thread counters after: %d.\n", ret);
-    return 1;
+    exit(0);
+    return;
   }
 
   // stop counting
@@ -1057,5 +1068,5 @@ int end_pmu(uint64_t *cycles) {
   kpep_db_free(pmu_state.db);
   kpep_config_free(pmu_state.cfg);
 
-  return 0;
+  return cycles;
 }

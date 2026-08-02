@@ -12,19 +12,46 @@
 uint64_t get_time();
 
 /**
+ * Calcola la mediana di un array di valori di dimensione nota.
+ *
+ * @param arr Array di valori.
+ * @param n Dimensione dell'array.
+ *
+ * @return Mediana dell'array.
+ */
+double median(uint64_t arr[], int n);
+
+/**
+ * Restituisce un numero casuale in un range min, max.
+ *
+ * @param min Minimo del range.
+ * @param max Massimo del range.
+ *
+ * @return Numero casuale fra min e max.
+ */
+int rand_range(int min, int max);
+
+/**
+ * Compara due numeri, restituendo il minore.
+ *
+ * @param a Il primo numero.
+ * @param b Il secondo numero.
+ *
+ * @return Il minimo fra a e b.
+ */
+int min(int a, int b);
+
+/**
  * Comincia una sessione di profilazione.
  *
- * @return Valore di ritorno.
  */
-int beg_pmu();
+void beg_pmu();
 
 /**
  * Termina una sessione di profilazione.
  *
- * @param cycles Valore di ritorno per i cicli di clock.
- *
- * @return Valore di ritorno.
+ * @return Valore di ritorno per i cicli di clock.
  */
-int end_pmu(uint64_t *cycles);
+uint64_t end_pmu();
 
 #endif

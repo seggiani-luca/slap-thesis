@@ -7,7 +7,6 @@ LFLAGS := -ldl
 
 # script per il plotting
 PLOT := python3 plot.py
-TRIES := 100
 
 # utility
 UTILS := utils/utils.c utils/kperf.c
@@ -20,7 +19,7 @@ comp-%:
 # fa il plotting di un esperimento o un test
 plot-%:
 	@echo "Stampo esperimento" $* "..."
-	@$(PLOT) $* $(TRIES)
+	@$(PLOT) $*
 
 # formatta tutto il sorgente
 format:

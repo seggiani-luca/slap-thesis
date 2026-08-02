@@ -39,46 +39,14 @@ def parse_csv(csv_str):
     return headers, data
 
 # ottieni argomenti
-if(len(sys.argv) < 3):
+if(len(sys.argv) < 2):
     print("Troppi pochi argomenti")
     exit()
 exp_dir = sys.argv[1]
-tries = int(sys.argv[2])
 
-# effettua tries tentativi
-headers = []
-results = []
-for _ in range(tries):
-    out = run_proc(exp_dir)
-    headers, data = parse_csv(out)
-    results.append(data)
-
-# inizializza array di colonne mediane
-data = []
-cols = len(headers)
-
-# scorri ogni colonna
-for col in range(cols):
-    # ottieni il numero di righe della colonna
-    rows = len(results[0][col])
-
-    # inizializza colonna di mediane
-    medians = []
-
-    # scorri ogni riga
-    for row in range(rows):
-        # contenitore di tutti a quella riga
-        values = []
-
-        # popola il contenitore
-        for tri in range(tries):
-            values.append(results[tri][col][row])
-
-        # imposta la colonna di mediane a quella riga
-        medians.append(statistics.median(values))
-
-    # imposta la colonna di mediane nell'array delle colonne
-    data.append(medians)
+# esegui esperimento
+out = run_proc(exp_dir)
+headers, data = parse_csv(out)
 
 # stampa grafico
 plt.figure()
