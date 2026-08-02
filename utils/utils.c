@@ -2,7 +2,7 @@
 #include <mach/mach_time.h>
 #include <stdlib.h>
 
-uint64_t get_time() {
+inline __attribute__((always_inline)) uint64_t get_time() {
     // ottieni info da mach
     static mach_timebase_info_data_t info = {0};
     if (info.denom == 0)
@@ -30,6 +30,6 @@ double median(uint64_t arr[], int n) {
     }
 }
 
-int rand_range(int min, int max) { return min + rand() % (max - min + 1); }
+int rand_range(int min, int max) { return min + rand() % (max - min); }
 
 int min(int a, int b) { return (a < b) ? a : b; }

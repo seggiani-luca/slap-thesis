@@ -52,7 +52,7 @@ headers, data = parse_csv(out)
 plt.figure()
 
 # stampa ogni colonna
-for col in range(cols):
+for col in range(len(headers)):
     if col == 0:
         continue
     plt.plot(data[0], data[col], label=headers[col])

@@ -2,14 +2,14 @@
 
 # compilatore e flags
 CC := clang
-CFLAGS := -O3
+CFLAGS := -O0 -mcpu=apple-m2 #-g
 LFLAGS := -ldl
 
 # script per il plotting
 PLOT := python3 plot.py
 
 # utility
-UTILS := utils/utils.c utils/kperf.c
+#UTILS := utils/kperf.c#utils/utils.c 
 
 # compila un esperimento o un test
 comp-%:

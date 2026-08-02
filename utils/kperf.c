@@ -1045,7 +1045,7 @@ uint64_t end_pmu() {
                                        pmu_state.counters_1))) {
         printf("Failed get thread counters after: %d.\n", ret);
         exit(0);
-        return;
+        return 0;
     }
 
     // stop counting
@@ -1054,6 +1054,7 @@ uint64_t end_pmu() {
     kpc_force_all_ctrs_set(0);
 
     // result
+    u64 cycles;
     for (usize i = 0; i < pmu_state.ev_count; i++) {
         // for now only get cycles
         if (i != 0)
@@ -1063,7 +1064,7 @@ uint64_t end_pmu() {
         usize idx = pmu_state.counter_map[i];
         u64 val = pmu_state.counters_1[idx] - pmu_state.counters_0[idx];
 
-        *cycles = val;
+        cycles = val;
     }
 
     // free data

@@ -1,10 +1,12 @@
-#include "../utils/utils.h"
+//#include "../utils/utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/qos.h>
 #include <time.h>
+#include <pthread.h>
+#include <mach/mach_time.h>
 
 // Valore minimo di ITERS
 #define MIN_ITERS 10
@@ -28,6 +30,38 @@
 // Dimensione di pagina su processori della serie M, che è 16 KiB
 #define PAGE_SZ 16384
 
+// Funzione di comparazione per qsort
+int compare(const void *a, const void *b) {
+    return (*(uint64_t *)a > *(uint64_t *)b) -
+           (*(uint64_t *)a < *(uint64_t *)b);
+}
+
+double median(uint64_t arr[], int n) {
+    qsort(arr, n, sizeof(uint64_t), compare);
+    if (n % 2 == 0) {
+        return (double)(arr[n / 2 - 1] + arr[n / 2]) / 2.0;
+    } else {
+        return (double)arr[n / 2];
+    }
+}
+
+int rand_range(int min, int max) { return min + rand() % (max - min); }
+
+inline __attribute__((always_inline)) int min(int a, int b) { return (a < b) ? a : b; }
+
+uint64_t get_time() {
+    // ottieni info da mach
+    static mach_timebase_info_data_t info = {0};
+    if (info.denom == 0)
+        mach_timebase_info(&info);
+
+    // ottieni tick corrente
+    uint64_t t = mach_absolute_time();
+
+    // restituisci tempo corrente in millisecondi
+    return t * info.numer / info.denom;
+}
+
 int main() {
     // imposta affinità CPU attraverso pthread_set_qos_class_self_np (in quanto
     // non abbiamo a disposizione KDK)
@@ -37,12 +71,15 @@ int main() {
     srand((unsigned int)time(NULL));
 
     // stampa header del CSV
-    printf("%s, %s, %s\n", "Loop Random Addr + Random Value",
+    printf("%s, %s, %s, %s\n", "Iterazioni", "Loop Random Addr + Random Value",
            "Loop Striding Addr + Striding Value",
            "Loop Striding Addr + Random Value");
 
     // esegui iterazioni da MIN_ITERS a MAX_ITERS, passo ITERS_STEP
     for (int ITERS = MIN_ITERS; ITERS <= MAX_ITERS; ITERS += ITERS_STEP) {
+        // stampa iterazione corrente
+        printf("%d, ", ITERS);
+
         // alloca un buffer abbastanza grande per il training del LAP
         const int NUM_PAGES_BUF = 1 + (ITERS * STRIDE * sizeof(int)) / PAGE_SZ;
         void *buffer =
@@ -88,14 +125,15 @@ int main() {
             junk = 0;
 
             // inizia profilazione
-            beg_pmu();
-
+            //beg_pmu();
+            uint64_t beg = get_time();
             for (int i = 0; i < ITERS; ++i) {
                 junk = ptr[junk];
             }
 
             // termina profilazione
-            timings[i] = end_pmu();
+            uint64_t end = get_time();
+            timings[i] = end - beg;
         }
 
         printf("%f, ", median(timings, REPS));
@@ -118,19 +156,20 @@ int main() {
             junk = 0;
 
             // inizia profilazione
-            beg_pmu();
-
+            //beg_pmu();
+            uint64_t beg = get_time();
             for (int i = 0; i < ITERS; ++i) {
                 junk = ptr[junk];
             }
 
             // termina profilazione
-            timings[i] = end_pmu();
+            uint64_t end = get_time();
+            timings[i] = end - beg;
         }
 
         printf("%f, ", median(timings, REPS));
 
-        // test per il LAP: valori casuali + indirizzi striding, rendendo junk
+        // 3. test per il LAP: valori casuali + indirizzi striding, rendendo junk
         // il minimo fra lo stride e il valore caricato, e rendendo il valore
         // caricato almeno maggiore dello stride
         for (int i = 0; i < WRITE_MAX; ++i) {
@@ -148,16 +187,18 @@ int main() {
             junk = 0;
 
             // inizia profilazione
-            beg_pmu();
-
+            //beg_pmu();
+            uint64_t beg = get_time();
             for (int i = 0; i < ITERS; ++i) {
                 junk += min(ptr[junk], STRIDE);
             }
 
             // termina profilazione
-            timings[i] = end_pmu();
+            uint64_t end = get_time();
+            timings[i] = end - beg;
         }
-        printf("%f, ", median(timings, REPS));
+
+        printf("%f\n", median(timings, REPS));
 
         // ripulisci le allocazioni
         if (munmap(buffer, NUM_PAGES_BUF * PAGE_SZ) == -1) {
