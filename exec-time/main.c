@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/qos.h>
+#include <unistd.h>
 
 // Valore minimo di ITERS
 #define MIN_ITERS 10
@@ -209,7 +210,7 @@ int compare(const void *a, const void *b) {
  * @return EXIT_SUCCESS.
  */
 int main() {
-  srand(getpid() ^ mach_absolute_time());
+  srand(getpid() ^ get_time());
 
   // classe di QOS per P-core
   pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
